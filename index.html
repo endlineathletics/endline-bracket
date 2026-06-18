@@ -315,7 +315,6 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
           <div class="cfg-label">생성할 탭 <span class="cfg-sub">클릭하면 바로 생김/사라짐</span></div>
           <div id="cfgTabs" class="cfg-chips"></div>
         </div>
-        <button class="btn btn-primary" id="btnGenTabs" style="width:100%;margin-top:4px;font-size:15px;padding:12px;justify-content:center">탭 저장</button>
       </div>
     </details>
 
@@ -1578,7 +1577,6 @@ document.getElementById("tabGapInp").addEventListener("change",e=>{
 });
 document.getElementById("gapHelp").addEventListener("click",e=>{ e.stopPropagation(); document.getElementById("gapHelpPop").classList.toggle("show"); });
 document.addEventListener("click",e=>{ if(!e.target.closest("#gapHelp,#gapHelpPop")) document.getElementById("gapHelpPop")?.classList.remove("show"); });
-document.getElementById("btnGenTabs").addEventListener("click",()=>{ if(!PLAYERS.length){alert("먼저 명단을 불러오세요.");return;} generateTabs(); setTab(activeTab); renderConfig(); });
 document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileInput").click());
 document.getElementById("fileInput").addEventListener("change",e=>{ handleFile(e.target.files[0]); e.target.value=""; });
 document.getElementById("btnTemplate").addEventListener("click",downloadTemplate);
