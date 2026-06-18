@@ -472,7 +472,7 @@ function teamNames(){ return config.teams.map(t=>t.name); }
 function teamObj(name){ return config.teams.find(t=>t.name===name); }
 function logoFor(team){ if(!team) return null; const t=teamObj(team); return (t&&t.logo) || (team==="엔드라인"?ENDLINE_ICON:null); }
 // 전체 인원: 팀 로고 이미지만 (이름·태그 없음). 없으면 빈칸.
-function teamLogoImg(p){ if(p.guest) return ""; const logo=logoFor(p.team); return logo?`<img class="rlogo" src="${logo}" alt="">`:""; }
+function teamLogoImg(p){ if(p.guest) return `<span class="tag guest">게스트</span>`; const logo=logoFor(p.team); return logo?`<img class="rlogo" src="${logo}" alt="">`:""; }
 function nextPid(){ return PLAYERS.reduce((m,p)=>Math.max(m,p.id),0)+1; }
 // 이미지 → 작은 PNG dataURL (localStorage 용량 절약)
 function fileToLogo(file,cb){
