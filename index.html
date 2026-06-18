@@ -1104,7 +1104,7 @@ function _coverGame(sid, relaxed){
     const tg=byId(t[0]).gender; if(byId(t[1]).gender!==tg||byId(t[2]).gender!==tg) return;  // 나머지 3명 동성
     const sameGender=tg===sgender;
     const effs=t.map(E), spread=Math.max(...effs)-Math.min(...effs);
-    if(sameGender){ if(!relaxed && spread>2) return; }    // 동성: 1차 ≤2 / 2차 제한 없음
+    if(sameGender){ if(spread > (relaxed?3:2)) return; }  // 동성: 1차 급수폭 ≤2 / 2차 ≤3
     else { if(spread>1) return; }                         // 혼복: 여자끼리 환산 ≤1 (항상)
     const strongest=t.reduce((a,b)=>E(a)>=E(b)?a:b);
     let bd=99,bslots=null;
