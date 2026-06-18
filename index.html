@@ -28,9 +28,11 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 /* ---------- top bar ---------- */
 .topbar{
-  position:relative;z-index:50;background:var(--court);color:#fff;
+  position:relative;z-index:50;background:#1c1c1e;color:#fff;
   border-bottom:3px solid var(--lime);
 }
+.topbar .btn{box-sizing:border-box;height:36px;padding-top:0;padding-bottom:0}
+.topbar .btn-eqw{min-width:112px;justify-content:center}
 /* ---------- 코트 바 (스크롤해도 고정) ---------- */
 .courtbar{position:sticky;top:0;z-index:48;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(20,40,30,.06)}
 .courtbar-inner{max-width:1480px;margin:0 auto;padding:10px 22px;display:flex;align-items:stretch;gap:10px;overflow-x:auto}
@@ -371,10 +373,10 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     </div>
     <div class="spacer"></div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
-    <button class="btn btn-primary" id="btnHistory">게임 내역</button>
-    <button class="btn btn-soft" id="btnEdit">✎ 명단 편집</button>
-    <button class="btn btn-ghost" id="btnDemo">테스트 데이터</button>
-    <button class="btn btn-soft" id="btnExport">⬇ 저장본 내보내기</button>
+    <button class="btn btn-primary btn-eqw" id="btnHistory">게임 내역</button>
+    <button class="btn btn-soft btn-eqw" id="btnEdit">명단 편집</button>
+    <button class="btn btn-ghost btn-eqw" id="btnDemo">테스트 데이터</button>
+    <button class="btn btn-soft" id="btnExport">저장본 내보내기</button>
     <button class="btn btn-ghost" id="btnReset">초기화</button>
   </div>
 </div>
