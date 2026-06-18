@@ -60,6 +60,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .cp-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .cp-btn{font-family:inherit;font-size:15px;font-weight:700;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;padding:10px 16px;cursor:pointer;min-width:54px}
 .cp-btn:hover{background:var(--court);color:#fff}
+.cc-slot{border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:15px;background:#fff;margin-top:7px;color:var(--ink)}
+.cc-slot.male{background:#edf3fd}.cc-slot.female{background:#fdedf4}.cc-slot.sgrade{background:#ecf6ef}
 .ce-step{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:4px}
 .ce-btn{font-family:inherit;font-size:22px;font-weight:700;width:42px;height:42px;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;cursor:pointer;line-height:1}
 .ce-btn:hover:not(:disabled){background:var(--court);color:#fff}
@@ -117,13 +119,13 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 @media(max-width:1040px){.side{position:static;max-height:none;overflow:visible}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .panel-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-.panel-h h2{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--court-d)}
+.panel-h h2{font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--court-d)}
 .panel-b{padding:12px 16px}
 
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat{background:var(--paper);border-radius:10px;padding:10px 12px}
 .stat .v{font-size:22px;font-weight:700;line-height:1}
-.stat .l{font-size:11.5px;color:var(--muted);margin-top:3px}
+.stat .l{font-size:13px;color:var(--muted);margin-top:3px}
 
 /* S coverage */
 .scov{display:flex;flex-direction:column;gap:14px}
@@ -150,9 +152,9 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .gbadge{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
 .gS{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
 .gA{background:var(--gA)}.gB{background:var(--gB)}.gC{background:var(--gC)}.gD{background:var(--gD)}.gE{background:var(--gE)}.gF{background:var(--gF)}
-.rcard .nm{font-weight:600;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rcard .meta{font-size:11px;color:var(--muted);display:flex;gap:6px;flex:none;align-items:center}
-.tag{font-size:10.5px;padding:1px 6px;border-radius:99px;background:var(--paper);color:var(--muted);font-weight:600}
+.rcard .nm{font-weight:600;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcard .meta{font-size:13px;color:var(--muted);display:flex;gap:6px;flex:none;align-items:center}
+.tag{font-size:12px;padding:2px 7px;border-radius:99px;background:var(--paper);color:var(--muted);font-weight:600}
 .tag.endline{background:#e7f3ec;color:var(--court-d)}
 .tag.guest{background:#fdeede;color:#a85a16}
 .tag.inv{background:var(--court);color:#fff}
@@ -176,7 +178,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .tab .trow{display:flex;align-items:center;gap:7px}
 .tab .tt{font-weight:700;font-size:15px;color:var(--ink)}
 .tab .tcount{font-size:11px;font-weight:700;color:var(--court-d);background:#eaf5ee;border-radius:99px;padding:1px 7px}
-.tab .td{font-size:11px;color:var(--muted)}
+.tab .td{font-size:13px;color:var(--muted)}
 .tab:hover{background:#f6faf5;border-color:#c8d6c9}
 .tab.on{background:var(--court);border-color:var(--court);box-shadow:var(--shadow)}
 .tab.on .tt{color:#fff}
@@ -222,13 +224,13 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .gc-top{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:#fafdf8}
 .gc-no{font-weight:700;font-size:15px;background:var(--ink);color:#fff;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
 .gc-no.has-s{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
-.typebadge{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.02em}
+.typebadge{font-size:13px;font-weight:700;padding:4px 10px;border-radius:99px;letter-spacing:.02em}
 .t-혼복{background:#efe7fb;color:#6b3fb0}
 .t-남복{background:#e2effb;color:#2563a8}
 .t-여복{background:#fbe7f1;color:#b03f7e}
 .t-혼성{background:#f0ece6;color:#8a6d4a}
 .t-미정{background:#eee;color:#888}
-.naturetag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;border:1px dashed var(--line);color:var(--muted)}
+.naturetag{font-size:13px;font-weight:600;padding:4px 9px;border-radius:99px;border:1px dashed var(--line);color:var(--muted)}
 .nature-비슷{border-color:#bfe0cb;color:var(--ok);background:#f1faf4}
 .nature-밸런스{border-color:#cdb3e6;color:#7b4bb5;background:#f6f0fc}
 .gc-top .gx{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:4px;border-radius:6px}
@@ -237,7 +239,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .gc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
 .team{border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:#fcfdfb}
 .team-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
-.team-h .lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.team-h .lbl{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+#invAdd{font-family:inherit;font-size:13.5px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
 .team-h .pow{font-size:12px;font-weight:700;color:var(--court)}
 .powbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:9px}
 .powbar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--court-d),var(--court))}
@@ -258,7 +261,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .vs .b{font-weight:700;font-size:12px;color:var(--ink);letter-spacing:.08em}
 
 .gc-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;background:#fafbf9}
-.flag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
+.flag{font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
 .flag.ok{background:var(--okbg);color:var(--ok)}
 .flag.warn{background:var(--warnbg);color:var(--warn)}
 .flag.bad{background:var(--badbg);color:var(--bad)}
@@ -277,26 +280,26 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .cfgpanel>summary::-webkit-details-marker{display:none}
 .cfg-caret{color:var(--muted);font-size:12px;transition:transform .15s}
 .cfgpanel[open] .cfg-caret{transform:rotate(180deg)}
-.cfg-sec{margin-bottom:14px}
-.cfg-label{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px;display:flex;align-items:baseline;gap:6px}
-.cfg-sub{font-size:10.5px;font-weight:500;color:var(--muted)}
-.cfg-chips{display:flex;flex-wrap:wrap;gap:6px}
-.cfg-chip{font-family:inherit;font-size:11.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--muted);
-  border-radius:99px;padding:5px 10px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.cfg-sec{margin-bottom:18px}
+.cfg-label{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:9px;display:flex;align-items:baseline;gap:6px}
+.cfg-sub{font-size:12px;font-weight:500;color:var(--muted)}
+.cfg-chips{display:flex;flex-wrap:wrap;gap:8px}
+.cfg-chip{font-family:inherit;font-size:13.5px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--muted);
+  border-radius:99px;padding:7px 13px;cursor:pointer;transition:all .12s;white-space:nowrap}
 .cfg-chip:hover:not(:disabled){border-color:var(--court);color:var(--court)}
 .cfg-chip.on{background:var(--court);border-color:var(--court);color:#fff}
 .cfg-chip.off{opacity:.4;cursor:not-allowed}
-.cfg-hint{font-size:11px;color:var(--muted)}
-.cfg-pairs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.pair-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
-  background:var(--okbg);color:var(--court-d);border-radius:99px;padding:4px 6px 4px 11px}
-.pair-x{border:none;background:rgba(0,0,0,.08);color:var(--court-d);border-radius:99px;width:16px;height:16px;
-  font-size:9px;line-height:1;cursor:pointer;padding:0}
+.cfg-hint{font-size:13px;color:var(--muted)}
+.cfg-pairs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.pair-chip{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;
+  background:var(--okbg);color:var(--court-d);border-radius:99px;padding:6px 8px 6px 13px}
+.pair-x{border:none;background:rgba(0,0,0,.08);color:var(--court-d);border-radius:99px;width:18px;height:18px;
+  font-size:10px;line-height:1;cursor:pointer;padding:0}
 .pair-x:hover{background:var(--bad);color:#fff}
-.cfg-pairadd{display:flex;align-items:center;gap:5px}
-.cfg-pairadd select{flex:1;min-width:0;font-family:inherit;font-size:11.5px;padding:6px 7px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-.cfg-plus{color:var(--muted);font-size:12px}
-.cfg-pairadd .btn{padding:6px 10px;font-size:11.5px}
+.cfg-pairadd{display:flex;align-items:center;gap:6px}
+.cfg-pairadd select{flex:1;min-width:0;font-family:inherit;font-size:13.5px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.cfg-plus{color:var(--muted);font-size:14px}
+.cfg-pairadd .btn{padding:8px 12px;font-size:13.5px}
 
 /* ---------- 명단 편집 모달 ---------- */
 .modal-bg{position:fixed;inset:0;z-index:200;background:rgba(20,40,30,.45);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -356,7 +359,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
   <div class="topbar-inner">
     <div class="brand">
       <span class="logo">ENDLINE</span>
-      <span class="sub">4회차 정모 · 대진 편성기</span>
+      <span class="sub">대진 편성기</span>
     </div>
     <div class="spacer"></div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
@@ -379,6 +382,10 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     <div class="cp-list" id="cpList"></div>
     <button class="btn btn-soft" id="cpCancel" style="margin-top:12px">취소</button>
   </div>
+</div>
+
+<div class="cp-bg" id="courtCardModal" style="display:none">
+  <div class="gc" id="ccBody" style="width:min(440px,92%);max-height:88vh;overflow:auto"></div>
 </div>
 
 <div class="cp-bg" id="courtEdit" style="display:none">
@@ -594,7 +601,7 @@ function renderCourts(){
     const el=document.createElement("div");
     if(g){
       const min=elapsedMin(g.startTime), cls=min>=20?"red":(min>=15?"warn":"");
-      el.className="court busy "+cls;
+      el.className="court busy "+cls; el.dataset.cc=ct.id; el.style.cursor="pointer"; el.title="눌러서 대진 카드 보기";
       el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span><span class="court-timer" data-start="${g.startTime}">${min}분</span><span class="court-tab">${esc(g.startTab||"")}</span></div>`+
         `<div class="court-team">${esc(pInfo(g.slots[0]))} · ${esc(pInfo(g.slots[1]))}</div>`+
         `<div class="court-vs2">VS</div>`+
@@ -688,6 +695,22 @@ function endGame(cid){
   Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
   games=tabs[activeTab]||[];
   refreshAvail(); renderCourts(); render(); persist();
+}
+// 진행중 코트 클릭 → 읽기전용 대진 카드 팝업
+function openCourtCard(cid){
+  const ct=config.courts.find(c=>c.id===cid); if(!ct||!ct.game) return;
+  const g=ct.game, info=analyzeGame(g);
+  const slot=i=>{ const p=g.slots[i]!=null?byId(g.slots[i]):null; const cls=p?(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female")):"empty"; return `<div class="cc-slot ${cls}">${esc(pInfo(g.slots[i]))}</div>`; };
+  const team=(a,b,label,pow)=>`<div class="team"><div class="team-h"><span class="lbl">${label}</span><span class="pow num">전력 ${pow||0}</span></div>${slot(a)}${slot(b)}</div>`;
+  let flags=`<span class="flag ${info.balClass}"><span class="dot"></span>${info.balTxt} (차이 ${info.balDiff})</span>`;
+  if(g.slots.some(x=>x!=null&&isInvited(x))) flags+=`<span class="flag info"><span class="dot"></span>초청선수 포함</span>`;
+  document.getElementById("ccBody").innerHTML=`
+    <div class="gc-top"><span class="typebadge t-${info.type}">${info.type}</span>`+
+      `<span class="court-tab" style="margin-left:auto">${esc(String(ct.num))}번 · ${esc(g.startTab||"")} · ${elapsedMin(g.startTime)}분</span>`+
+      `<button class="modal-x" id="ccClose" style="margin-left:8px;background:rgba(0,0,0,.06);color:var(--muted)">✕</button></div>`+
+    `<div class="gc-body">${team(0,1,"TEAM A",info.powA)}<div class="vs"><span class="b num">VS</span></div>${team(2,3,"TEAM B",info.powB)}</div>`+
+    `<div class="gc-foot">${flags}<span class="flag" style="margin-left:auto;color:var(--muted)">조작은 코트 바에서</span></div>`;
+  document.getElementById("courtCardModal").style.display="flex";
 }
 function updateCourtTimers(){
   if(!activeGames().length) return;
@@ -1016,7 +1039,7 @@ function addSmart(){
   const four=pool.slice(0,4); four.sort((x,y)=>eff(byId(y))-eff(byId(x)));
   games.push({id:uid(),slots:[four[0],four[3],four[1],four[2]]}); render(); scrollEnd();
 }
-function scrollEnd(){requestAnimationFrame(()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}));}
+function scrollEnd(){}
 
 // 현재 탭에 게임 1개만 추가 (기존 게임 유지)
 function addOneForTab(){
@@ -1634,7 +1657,7 @@ function renderRosterModal(){
   // 인원 목록
   const list=document.getElementById("rmList"); list.innerHTML="";
   if(!PLAYERS.length) list.innerHTML=`<div class="cfg-hint" style="padding:8px">아직 없음 — 위에서 추가하거나 엑셀을 불러오세요.</div>`;
-  PLAYERS.forEach(p=>{
+  [...PLAYERS].sort((a,b)=> GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || a.name.localeCompare(b.name,"ko")).forEach(p=>{
     const row=document.createElement("div"); row.className="rm-row"+(isInvited(p.id)?" inv":"")+(p.id===_editId?" editing":"");
     row.dataset.edit=p.id;
     const where=p.guest?'<span class="tag guest">게스트</span>':(p.team?esc(p.team):'<span style="color:var(--muted)">—</span>');
@@ -1730,13 +1753,27 @@ function openPlayerModal(pid){
   document.getElementById("pmTitle").textContent=`${p.name} 경기 기록`;
   const body=document.getElementById("pmBody"); body.innerHTML="";
   const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
+  // 진행중 게임(코트) — 맨 위에 '진행중'으로
+  const live=activeGames().filter(g=>g.slots.includes(pid));
   const mine=(config.completed||[]).filter(r=>Array.isArray(r.slots)&&r.slots.includes(pid)).sort((a,b)=>(a.endTime||0)-(b.endTime||0));
-  if(!mine.length){ body.innerHTML=`<div class="pm-empty">완료한 경기가 없습니다. 카드에서 게임을 시작·종료하면 여기에 쌓여요.</div>`; document.getElementById("playerModal").style.display="flex"; return; }
-  mine.forEach((r,i)=>{
+  if(!live.length && !mine.length){ body.innerHTML=`<div class="pm-empty">경기 기록이 없습니다. 카드에서 게임을 시작·종료하면 여기에 쌓여요.</div>`; document.getElementById("playerModal").style.display="flex"; return; }
+  let n=0;
+  live.forEach(g=>{
+    n++;
+    const info=analyzeGame(g), inv=g.slots.some(x=>x!=null&&isInvited(x));
+    const tagL=inv?"초청":info.type, tagC=inv?"초청":info.type;
+    const pl=g.slots.map(s=>{ const t=esc(pInfo(s)); return s===pid?`<span class="pm-me">${t}</span>`:t; });
+    const row=document.createElement("div"); row.className="hs-row"; row.style.background="#fff7e6"; row.style.borderColor="#f0d9a8";
+    row.innerHTML=`<div class="hs-head"><span class="pm-no">${n}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time" style="color:#f59e0b;font-weight:700">진행중 (${elapsedMin(g.startTime)}분)</span></div>`+
+      `<div class="hs-players">${pl[0]} · ${pl[1]} <b>vs</b> ${pl[2]} · ${pl[3]}</div>`;
+    body.appendChild(row);
+  });
+  mine.forEach((r)=>{
+    n++;
     const tagL=r.inv?"초청":(r.type||"게임"), tagC=r.inv?"초청":(r.type||"");
     const pl=(r.slots||[]).map((s,idx)=>{ const t=esc((r.players&&r.players[idx])||"—"); return s===pid?`<span class="pm-me">${t}</span>`:t; });
     const row=document.createElement("div"); row.className="hs-row";
-    row.innerHTML=`<div class="hs-head"><span class="pm-no">${i+1}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time">${fmt(r.startTime)} ~ ${fmt(r.endTime)}</span></div>`+
+    row.innerHTML=`<div class="hs-head"><span class="pm-no">${n}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time">${fmt(r.startTime)} ~ ${fmt(r.endTime)}</span></div>`+
       `<div class="hs-players">${pl[0]} · ${pl[1]} <b>vs</b> ${pl[2]} · ${pl[3]}</div>`;
     body.appendChild(row);
   });
@@ -1859,7 +1896,9 @@ document.getElementById("courtbarInner").addEventListener("click",e=>{
   if(e.target.closest("[data-courtedit]")) return openCourtEdit();
   const cancel=e.target.closest("[data-cancel]"); if(cancel) return cancelGame(cancel.dataset.cancel);
   const end=e.target.closest("[data-end]"); if(end) return endGame(end.dataset.end);
+  const cc=e.target.closest("[data-cc]"); if(cc && !e.target.closest("button")) return openCourtCard(cc.dataset.cc);
 });
+document.getElementById("courtCardModal").addEventListener("click",e=>{ if(e.target.id==="courtCardModal"||e.target.id==="ccClose") document.getElementById("courtCardModal").style.display="none"; });
 document.getElementById("cpCancel").addEventListener("click",closeCourtPicker);
 document.getElementById("courtPicker").addEventListener("click",e=>{ if(e.target.id==="courtPicker") closeCourtPicker(); });
 document.getElementById("ceMinus").addEventListener("click",()=>{ _ceCount--; renderCourtEdit(); });
