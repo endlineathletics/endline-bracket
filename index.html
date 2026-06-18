@@ -57,6 +57,16 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .cp-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .cp-btn{font-family:inherit;font-size:15px;font-weight:700;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;padding:10px 16px;cursor:pointer;min-width:54px}
 .cp-btn:hover{background:var(--court);color:#fff}
+.ce-step{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:4px}
+.ce-btn{font-family:inherit;font-size:22px;font-weight:700;width:42px;height:42px;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;cursor:pointer;line-height:1}
+.ce-btn:hover:not(:disabled){background:var(--court);color:#fff}
+.ce-btn:disabled{opacity:.3;cursor:not-allowed}
+.ce-n{font-family:"Space Grotesk";font-weight:700;font-size:30px;min-width:44px}
+.ce-steplbl{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.ce-list{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
+.ce-row{display:flex;align-items:center;gap:8px;font-size:13px}
+.ce-lbl{flex:1;text-align:left;color:var(--muted)}
+.ce-num{width:64px;font-family:"Space Grotesk";font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px}
 /* 진행중 카드 페이드 / 시간경고 / 게임중인 사람 회색 */
 .gc.blocked{opacity:.5}
 .gc.playing{box-shadow:0 0 0 2px var(--court) inset}
@@ -366,6 +376,19 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
   </div>
 </div>
 
+<div class="cp-bg" id="courtEdit" style="display:none">
+  <div class="cp-box" style="min-width:280px">
+    <div class="cp-title">코트 편집</div>
+    <div class="ce-step"><button class="ce-btn" id="ceMinus">−</button><span class="ce-n" id="ceN">2</span><button class="ce-btn" id="cePlus">＋</button></div>
+    <div class="ce-steplbl">코트 수 (1~6)</div>
+    <div class="ce-list" id="ceList"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-soft" id="ceCancel" style="flex:1">취소</button>
+      <button class="btn btn-primary" id="ceOk" style="flex:1">확인</button>
+    </div>
+  </div>
+</div>
+
 <div class="layout">
   <!-- SIDEBAR -->
   <aside class="side">
@@ -568,25 +591,51 @@ function renderCourts(){
         `<button class="court-end" data-end="${g.id}">종료</button>`;
     } else {
       el.className="court empty";
-      el.innerHTML=`<div class="court-top"><input class="court-numinp" data-cnum="${ct.id}" value="${esc(String(ct.num))}">번`+
-        `${config.courts.length>2?`<button class="court-del" data-cdel="${ct.id}" title="코트 삭제">✕</button>`:""}</div>`+
+      el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span></div>`+
         `<div class="court-status">비어있음</div>`;
     }
     wrap.appendChild(el);
   });
-  if(config.courts.length<6){ const b=document.createElement("button"); b.className="court-add"; b.dataset.addcourt="1"; b.textContent="＋ 코트"; wrap.appendChild(b); }
+  const b=document.createElement("button"); b.className="court-add"; b.dataset.courtedit="1"; b.textContent=config.courts.length?"✎ 코트 편집":"＋ 코트 추가"; wrap.appendChild(b);
 }
-function addCourt(){
-  if(config.courts.length>=6){ alert("코트는 최대 6개예요."); return; }
-  const used=new Set(config.courts.map(c=>c.num)); let n=1; while(used.has(n)) n++;
-  config.courts.push({id:courtId(), num:n}); renderCourts(); persist();
+/* 코트 편집 팝업 (코트 수 −/+ , 번호 수정, 확인) */
+let _ceCount=2, _ceNums=[];
+function openCourtEdit(){
+  _ceCount = config.courts.length || 2;
+  _ceNums = config.courts.length ? config.courts.map(c=>c.num) : [1,2];
+  renderCourtEdit();
+  document.getElementById("courtEdit").style.display="flex";
 }
-function delCourt(cid){ if(config.courts.length<=2){ alert("코트는 최소 2개예요."); return; } config.courts=config.courts.filter(c=>c.id!==cid); renderCourts(); persist(); }
-function setCourtNum(cid,val){
-  const n=parseInt(val), ct=config.courts.find(c=>c.id===cid); if(!ct) return;
-  if(!n||n<1){ renderCourts(); return; }
-  if(config.courts.some(c=>c.id!==cid && c.num===n)){ alert("이미 있는 코트 번호예요."); renderCourts(); return; }
-  ct.num=n; renderCourts(); persist();
+function closeCourtEdit(){ const p=document.getElementById("courtEdit"); if(p) p.style.display="none"; }
+function renderCourtEdit(){
+  _ceCount=Math.max(1,Math.min(6,_ceCount));
+  while(_ceNums.length<_ceCount){ let n=1; while(_ceNums.includes(n)) n++; _ceNums.push(n); }
+  while(_ceNums.length>_ceCount) _ceNums.pop();
+  document.getElementById("ceN").textContent=_ceCount;
+  document.getElementById("ceMinus").disabled=_ceCount<=1;
+  document.getElementById("cePlus").disabled=_ceCount>=6;
+  const list=document.getElementById("ceList"); list.innerHTML="";
+  _ceNums.forEach((num,i)=>{
+    const row=document.createElement("div"); row.className="ce-row";
+    row.innerHTML=`<span class="ce-lbl">코트 ${i+1}</span><input type="number" class="ce-num" data-i="${i}" value="${num}" min="1">번`;
+    list.appendChild(row);
+  });
+}
+function applyCourtEdit(){
+  const nums=_ceNums.map(n=>parseInt(n)||0);
+  if(nums.some(n=>n<1)){ alert("코트 번호는 1 이상이어야 해요."); return; }
+  if(new Set(nums).size!==nums.length){ alert("코트 번호가 중복돼요."); return; }
+  const busy=new Set(activeGames().map(g=>g.court));
+  let cur=[...config.courts];
+  while(cur.length<_ceCount) cur.push({id:courtId(), num:0});
+  while(cur.length>_ceCount){
+    let idx=-1; for(let i=cur.length-1;i>=0;i--){ if(!busy.has(cur[i].id)){ idx=i; break; } }
+    if(idx<0){ alert("게임중인 코트는 줄일 수 없어요. 먼저 종료해주세요."); return; }
+    cur.splice(idx,1);
+  }
+  cur.forEach((c,i)=>{ c.num=nums[i]; });
+  config.courts=cur;
+  closeCourtEdit(); renderCourts(); render(); persist();
 }
 function startGame(g){
   if(g.slots.some(x=>x==null)){ alert("인원 4명을 채워주세요."); return; }
@@ -1799,13 +1848,17 @@ document.getElementById("btnHistory").addEventListener("click",openHistoryModal)
 document.getElementById("banList").addEventListener("click",e=>{ const b=e.target.closest("[data-unban]"); if(b) unban(b.dataset.unban); });
 // 코트 바
 document.getElementById("courtbarInner").addEventListener("click",e=>{
-  if(e.target.closest("[data-addcourt]")) return addCourt();
-  const del=e.target.closest("[data-cdel]"); if(del) return delCourt(del.dataset.cdel);
+  if(e.target.closest("[data-courtedit]")) return openCourtEdit();
   const end=e.target.closest("[data-end]"); if(end) return endGame(end.dataset.end);
 });
-document.getElementById("courtbarInner").addEventListener("change",e=>{ const inp=e.target.closest("[data-cnum]"); if(inp) setCourtNum(inp.dataset.cnum, inp.value); });
 document.getElementById("cpCancel").addEventListener("click",closeCourtPicker);
 document.getElementById("courtPicker").addEventListener("click",e=>{ if(e.target.id==="courtPicker") closeCourtPicker(); });
+document.getElementById("ceMinus").addEventListener("click",()=>{ _ceCount--; renderCourtEdit(); });
+document.getElementById("cePlus").addEventListener("click",()=>{ _ceCount++; renderCourtEdit(); });
+document.getElementById("ceList").addEventListener("input",e=>{ const inp=e.target.closest(".ce-num"); if(inp) _ceNums[+inp.dataset.i]=parseInt(inp.value)||0; });
+document.getElementById("ceOk").addEventListener("click",applyCourtEdit);
+document.getElementById("ceCancel").addEventListener("click",closeCourtEdit);
+document.getElementById("courtEdit").addEventListener("click",e=>{ if(e.target.id==="courtEdit") closeCourtEdit(); });
 // 순서 드래그 (게임 컨테이너)
 (function(){ const gel=document.getElementById("games");
   gel.addEventListener("dragover",e=>{ if(_dragId!=null) e.preventDefault(); });
