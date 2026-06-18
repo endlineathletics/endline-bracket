@@ -1086,18 +1086,26 @@ function addOneCoverAll(a1,a2){
   if(best){ games.push({id:uid(),slots:best.slice()}); render(); scrollEnd(); }
 }
 function addOneSingle(sid){
+  // 1차: 기존 엄격 규칙(동성 급수폭 ≤2)으로 채우고, 다 떨어지면
+  // 2차: 밸런스 우선(동성 급수폭 제한 완화 + 양 팀 전력차 ≤1 필수)
+  let best=_coverGame(sid,false) || _coverGame(sid,true);
+  if(best){ games.push({id:uid(),slots:best.slice()}); render(); scrollEnd(); }
+  else alert("이 초청선수로 더 만들 수 있는 새 게임이 없어요.\n(나머지 3명 동성 + 밸런스 + 밴/이미 만든 조합 제외)");
+}
+function _coverGame(sid, relaxed){
   const others=poolIds();
   const counts=playCounts();
   const seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
   const E=id=>eff(byId(id));
   const SE=eff(byId(sid));
-  let best=null,bs=1e9;
   const sgender=byId(sid).gender;
+  let best=null,bs=1e9;
   combos3(others).forEach(t=>{
     const tg=byId(t[0]).gender; if(byId(t[1]).gender!==tg||byId(t[2]).gender!==tg) return;  // 나머지 3명 동성
     const sameGender=tg===sgender;
     const effs=t.map(E), spread=Math.max(...effs)-Math.min(...effs);
-    if(sameGender ? spread>2 : spread>1) return;          // 비초청 3명 전력차: 동성복식 ≤2 / 혼복 ≤1
+    if(sameGender){ if(!relaxed && spread>2) return; }    // 동성: 1차 ≤2 / 2차 제한 없음
+    else { if(spread>1) return; }                         // 혼복: 여자끼리 환산 ≤1 (항상)
     const strongest=t.reduce((a,b)=>E(a)>=E(b)?a:b);
     let bd=99,bslots=null;
     for(const pi of [0,1,2]){
@@ -1108,12 +1116,12 @@ function addOneSingle(sid){
       if(d<bd){bd=d; bslots=[sid,partner,opp[0],opp[1]];}
     }
     if(!bslots) return;
+    if(relaxed && bd>1) return;                           // 2차: 양 팀 전력차 1 이하만
     if(seen.has(keyOf(bslots)) || isBannedKey(keyOf(bslots))) return;
     const sc=t.reduce((s,p)=>s+counts[p],0) - t.filter(p=>counts[p]===0).length*50 + bd + Math.random()*0.3;
     if(sc<bs){bs=sc;best=bslots;}
   });
-  if(best){ games.push({id:uid(),slots:best.slice()}); render(); scrollEnd(); }
-  else alert("이 초청선수로 더 만들 수 있는 새 게임이 없어요.\n(나머지 3명 동성 + 같은 팀 급수차 제한 + 밴/이미 만든 조합 제외)");
+  return best;
 }
 function addOneStyle(style){
   const ids=poolIds();
@@ -1840,8 +1848,11 @@ function renderConfig(){
     chip.appendChild(x); pairWrap.appendChild(chip);
   });
   const free=PLAYERS.filter(p=>partnerOf(p.id)==null);
-  const fill=sel=>{ sel.innerHTML=`<option value="">— 선택 —</option>`; free.forEach(p=>{ const o=document.createElement("option"); o.value=p.id; o.textContent=`${p.name}·${p.grade}`; sel.appendChild(o); }); };
-  fill(pairA); fill(pairB);
+  const keepA=pairA.value;
+  pairA.innerHTML=`<option value="">— 선택 —</option>`;
+  free.forEach(p=>{ const o=document.createElement("option"); o.value=p.id; o.textContent=`${p.name}·${p.grade}`; pairA.appendChild(o); });
+  if(keepA && [...pairA.options].some(o=>o.value===keepA)) pairA.value=keepA;
+  refillPairB();   // 둘째 칸은 첫째 칸에서 고른 사람 제외
   // 생성할 탭 (클릭 즉시 토글)
   tabWrap.innerHTML="";
   tabOptionList().forEach(o=>{
@@ -1866,6 +1877,15 @@ function removeInvited(id){
   delete tabs.coverall; delete tabCache.coverall;
   rebuildTabs(false); setTab(activeTab); renderConfig();
 }
+function refillPairB(){
+  const pairA=document.getElementById("pairA"), pairB=document.getElementById("pairB");
+  if(!pairA||!pairB) return;
+  const free=PLAYERS.filter(p=>partnerOf(p.id)==null);
+  const ex=pairA.value, keep=pairB.value;
+  pairB.innerHTML=`<option value="">— 선택 —</option>`;
+  free.forEach(p=>{ if(String(p.id)===ex) return; const o=document.createElement("option"); o.value=p.id; o.textContent=`${p.name}·${p.grade}`; pairB.appendChild(o); });
+  if(keep && keep!==ex && [...pairB.options].some(o=>o.value===keep)) pairB.value=keep;
+}
 function addPair(){
   const a=+document.getElementById("pairA").value, b=+document.getElementById("pairB").value;
   if(!a||!b||a===b){ alert("서로 다른 두 명을 선택하세요."); return; }
@@ -1886,6 +1906,7 @@ document.getElementById("invAdd").addEventListener("change",e=>{ const id=+e.tar
 document.getElementById("cfgTabs").addEventListener("click",e=>{ const b=e.target.closest("[data-tab]"); if(!b)return; toggleTabOption(b.dataset.tab); });
 document.getElementById("cfgPairs").addEventListener("click",e=>{ const x=e.target.closest(".pair-x"); if(!x)return; removePair(+x.dataset.pi); });
 document.getElementById("btnAddPair").addEventListener("click",addPair);
+document.getElementById("pairA").addEventListener("change",refillPairB);
 document.getElementById("tabHelp").addEventListener("click",e=>{ e.stopPropagation(); document.getElementById("tabHelpPop").classList.toggle("show"); });
 document.addEventListener("click",e=>{ if(!e.target.closest("#tabHelp,#tabHelpPop")) document.getElementById("tabHelpPop")?.classList.remove("show"); });
 document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("fileInput").click());
