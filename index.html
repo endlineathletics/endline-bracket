@@ -538,14 +538,16 @@ function genCoverage(sid){
   while(covered.size<others.length && guard++<40){
     let best=null,bs=-1e9;
     for(const t of trios){
-      // 선수의 파트너를 골라 팀 차이 최소화
+      // 선수의 파트너를 골라 팀 차이 최소화 + 비초청 두 명(상대 팀) 급수차 1 이내
       let bd=99, bslots=null;
       for(const pi of [0,1,2]){
         const oi=[0,1,2].filter(x=>x!==pi);
+        if(Math.abs(GRADE_VAL[byId(t[oi[0]]).grade]-GRADE_VAL[byId(t[oi[1]]).grade])>1) continue;  // 같은 팀 두 명 급수차 ≤1
         const pa=SE+E(t[pi]), pb=E(t[oi[0]])+E(t[oi[1]]);
         const d=Math.abs(pa-pb);
         if(d<bd){bd=d; bslots=[sid,t[pi],t[oi[0]],t[oi[1]]];}
       }
+      if(!bslots) continue;
       if(seen.has(keyOf(bslots))) continue;
       const newCov=t.filter(x=>!covered.has(x)).length;
       const score=newCov*100 - bd*4 + Math.random()*0.6;   // cover new + stay balanced
@@ -817,9 +819,11 @@ function addOneSingle(sid){
     let bd=99,bslots=null;
     for(const pi of [0,1,2]){
       const oi=[0,1,2].filter(x=>x!==pi);
+      if(Math.abs(GRADE_VAL[byId(t[oi[0]]).grade]-GRADE_VAL[byId(t[oi[1]]).grade])>1) continue;  // 같은 팀 두 명 급수차 ≤1
       const d=Math.abs((SE+E(t[pi]))-(E(t[oi[0]])+E(t[oi[1]])));
       if(d<bd){bd=d; bslots=[sid,t[pi],t[oi[0]],t[oi[1]]];}
     }
+    if(!bslots) return;
     if(bd>2) return;
     if(seen.has(keyOf(bslots))) return;
     const sc=t.reduce((s,p)=>s+counts[p],0) - t.filter(p=>counts[p]===0).length*50 + bd + Math.random()*0.3;
@@ -956,7 +960,7 @@ function optionList(selId){
 function gameMatchesFilter(g,info){
   if(activeFilter==="all") return true;
   if(activeFilter==="s") return g.slots.some(id=>id!=null&&isInvited(id));
-  if(activeFilter==="warn") return info.full && (info.balClass!=="ok" || info.dupeIds.length || foursomeDup.has(foursomeKey(g)) || (info.type==="혼복"&&mixWarn(info)) || info.type==="혼성");
+  if(activeFilter==="warn") return info.full && (info.balClass!=="ok" || info.dupeIds.length || foursomeDup.has(foursomeKey(g)) || (info.type==="혼복"&&mixWarn(info)));
   return info.type===activeFilter;
 }
 function mixWarn(info){ // returns true if 혼복 male grades mismatch
@@ -1025,7 +1029,7 @@ function render(){
     if(info.full && info.balClass==="ok") balOk++;
     const hasDup=foursomeDup.has(foursomeKey(g));
     const mixBad=info.type==="혼복"&&mixWarn(info);
-    const isWarn=info.full&&(info.balClass!=="ok"||info.dupeIds.length||hasDup||mixBad||info.type==="혼성");
+    const isWarn=info.full&&(info.balClass!=="ok"||info.dupeIds.length||hasDup||mixBad);
     if(isWarn && !g.done) warnCount++;
 
     if(!gameMatchesFilter(g,info)) return;
@@ -1042,7 +1046,6 @@ function render(){
       if(info.type==="혼복") flags+= mixBad
         ? `<span class="flag warn"><span class="dot"></span>혼복 남자 급수 불일치</span>`
         : `<span class="flag ok"><span class="dot"></span>혼복 남자 급수 OK</span>`;
-      if(info.type==="혼성") flags+=`<span class="flag warn"><span class="dot"></span>비표준 구성(2:2 성별)</span>`;
       if(hasDup) flags+=`<span class="flag bad"><span class="dot"></span>같은 4명 조합 중복</span>`;
     }else{
       flags+=`<span class="flag info"><span class="dot"></span>인원 미완성</span>`;
