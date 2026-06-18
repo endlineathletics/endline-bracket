@@ -413,7 +413,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
       <summary class="panel-h"><h2>⚙ 설정</h2><span class="cfg-caret">▾</span></summary>
       <div class="panel-b">
         <div class="cfg-sec">
-          <div class="cfg-label">초청선수 <span class="cfg-sub">전담 탭 기준</span></div>
+          <div class="cfg-label">초청선수 <span class="cfg-sub">개인별 탭 생성</span></div>
           <div id="cfgInvited" class="cfg-chips" style="margin-bottom:8px"></div>
           <select id="invAdd" style="width:100%"></select>
         </div>
@@ -1225,11 +1225,9 @@ function analyzeGame(g){
   let type="미정";
   if(full){
     const males=all.filter(p=>p.gender==="남").length;
-    const aMix=(a1.gender!==a2.gender), bMix=(b1.gender!==b2.gender);
     if(males===4) type="남복";
     else if(males===0) type="여복";
-    else if(aMix&&bMix) type="혼복";
-    else type="혼성";
+    else type="혼복";
   }
   // balance
   let balDiff=Math.abs(powA-powB), balClass="ok", balTxt="밸런스 좋음";
@@ -1339,7 +1337,7 @@ function render(){
     let flags="";
     if(info.full){
       flags+=`<span class="flag ${info.balClass}"><span class="dot"></span>${info.balTxt} (차이 ${info.balDiff})</span>`;
-      if(info.type==="혼복") flags+= mixBad
+      if(info.type==="혼복" && info.teamA.some(p=>p.gender==="남") && info.teamB.some(p=>p.gender==="남")) flags+= mixBad
         ? `<span class="flag warn"><span class="dot"></span>혼복 남자 급수 불일치</span>`
         : `<span class="flag ok"><span class="dot"></span>혼복 남자 급수 OK</span>`;
       if(hasDup) flags+=`<span class="flag bad"><span class="dot"></span>같은 4명 조합 중복</span>`;
