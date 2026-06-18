@@ -531,29 +531,33 @@ function genCoverage(sid){
   const others=poolIds();
   const E=id=>eff(byId(id));
   const SE=eff(byId(sid));
-  // 나머지 3명은 전부 같은 성별 (3:1 게임 방지)
+  const sgender=byId(sid).gender;
+  // 나머지 3명은 전부 같은 성별 (3:1 방지)
   const trios=combos3(others).filter(t=>{ const g=byId(t[0]).gender; return byId(t[1]).gender===g && byId(t[2]).gender===g; });
   const out=[], seen=new Set(), covered=new Set();
   let guard=0;
   while(covered.size<others.length && guard++<40){
-    let best=null,bs=-1e9;
+    let best=null,bs=-1e9,bestCov=0;
     for(const t of trios){
-      // 선수의 파트너를 골라 팀 차이 최소화 + 비초청 두 명(상대 팀) 급수차 1 이내
+      const sameGender=byId(t[0]).gender===sgender;
+      const effs=t.map(E), spread=Math.max(...effs)-Math.min(...effs);
+      if(sameGender ? spread>2 : spread>1) continue;        // 비초청 3명 전력차: 동성복식 ≤2 / 혼복 ≤1
+      const strongest=t.reduce((a,b)=>E(a)>=E(b)?a:b);      // 비초청 중 최강
       let bd=99, bslots=null;
       for(const pi of [0,1,2]){
-        const oi=[0,1,2].filter(x=>x!==pi);
-        if(Math.abs(GRADE_VAL[byId(t[oi[0]]).grade]-GRADE_VAL[byId(t[oi[1]]).grade])>1) continue;  // 같은 팀 두 명 급수차 ≤1
-        const pa=SE+E(t[pi]), pb=E(t[oi[0]])+E(t[oi[1]]);
-        const d=Math.abs(pa-pb);
-        if(d<bd){bd=d; bslots=[sid,t[pi],t[oi[0]],t[oi[1]]];}
+        const partner=t[pi];
+        if(sameGender && partner===strongest) continue;     // 동성복식: 최강자는 초청 상대팀
+        const opp=t.filter(x=>x!==partner);
+        const d=Math.abs((SE+E(partner))-(E(opp[0])+E(opp[1])));
+        if(d<bd){bd=d; bslots=[sid,partner,opp[0],opp[1]];}
       }
       if(!bslots) continue;
       if(seen.has(keyOf(bslots))) continue;
       const newCov=t.filter(x=>!covered.has(x)).length;
-      const score=newCov*100 - bd*4 + Math.random()*0.6;   // cover new + stay balanced
-      if(score>bs){bs=score; best={slots:bslots,t};}
+      const score=newCov*100 - bd*4 + Math.random()*0.6;   // 커버 우선 + 밸런스
+      if(score>bs){bs=score; best={slots:bslots,t}; bestCov=newCov;}
     }
-    if(!best) break;
+    if(!best || bestCov===0) break;   // 더 커버할 사람 없으면 종료(스팸 방지)
     out.push({id:uid(),slots:best.slots}); seen.add(keyOf(best.slots));
     best.t.forEach(x=>covered.add(x));
   }
@@ -814,17 +818,22 @@ function addOneSingle(sid){
   const E=id=>eff(byId(id));
   const SE=eff(byId(sid));
   let best=null,bs=1e9;
+  const sgender=byId(sid).gender;
   combos3(others).forEach(t=>{
     const tg=byId(t[0]).gender; if(byId(t[1]).gender!==tg||byId(t[2]).gender!==tg) return;  // 나머지 3명 동성
+    const sameGender=tg===sgender;
+    const effs=t.map(E), spread=Math.max(...effs)-Math.min(...effs);
+    if(sameGender ? spread>2 : spread>1) return;          // 비초청 3명 전력차: 동성복식 ≤2 / 혼복 ≤1
+    const strongest=t.reduce((a,b)=>E(a)>=E(b)?a:b);
     let bd=99,bslots=null;
     for(const pi of [0,1,2]){
-      const oi=[0,1,2].filter(x=>x!==pi);
-      if(Math.abs(GRADE_VAL[byId(t[oi[0]]).grade]-GRADE_VAL[byId(t[oi[1]]).grade])>1) continue;  // 같은 팀 두 명 급수차 ≤1
-      const d=Math.abs((SE+E(t[pi]))-(E(t[oi[0]])+E(t[oi[1]])));
-      if(d<bd){bd=d; bslots=[sid,t[pi],t[oi[0]],t[oi[1]]];}
+      const partner=t[pi];
+      if(sameGender && partner===strongest) continue;     // 동성복식: 최강자는 초청 상대팀
+      const opp=t.filter(x=>x!==partner);
+      const d=Math.abs((SE+E(partner))-(E(opp[0])+E(opp[1])));
+      if(d<bd){bd=d; bslots=[sid,partner,opp[0],opp[1]];}
     }
     if(!bslots) return;
-    if(bd>2) return;
     if(seen.has(keyOf(bslots))) return;
     const sc=t.reduce((s,p)=>s+counts[p],0) - t.filter(p=>counts[p]===0).length*50 + bd + Math.random()*0.3;
     if(sc<bs){bs=sc;best=bslots;}
