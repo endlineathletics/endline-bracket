@@ -147,6 +147,18 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .donebtn{margin-left:auto;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 16px;border-radius:99px;border:1px solid var(--line);background:#fff;text-align:center;min-width:56px}
 .donebtn:hover{border-color:var(--muted)}
 .donebtn.on{background:#dadada;border-color:#ccc;color:var(--ink)}
+.banbtn{margin-left:auto;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:#fff}
+.banbtn:hover:not(:disabled){border-color:var(--bad);color:var(--bad)}
+.banbtn:disabled{opacity:.35;cursor:not-allowed}
+.gc-top .donebtn{margin-left:6px}
+.banpanel{max-width:1480px;margin:6px auto 0;padding:14px 22px}
+.banpanel-h{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.banpanel-sub{font-weight:400;font-size:11.5px;color:var(--muted)}
+.ban-row{display:flex;align-items:center;gap:10px;padding:6px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:#fff;font-size:12.5px}
+.ban-txt{flex:1;min-width:0}
+.ban-txt b{color:var(--muted);font-weight:600;margin:0 3px}
+.ban-x{border:none;background:var(--badbg);color:var(--bad);border-radius:7px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer}
+.ban-x:hover{background:var(--bad);color:#fff}
 .gc-top{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:#fafdf8}
 .gc-no{font-family:"Space Grotesk";font-weight:700;font-size:15px;background:var(--ink);color:#fff;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
 .gc-no.has-s{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
@@ -268,6 +280,12 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .pm-vs{color:var(--muted);font-weight:700;font-size:11px;margin:0 2px}
 .pm-me{font-weight:700;color:var(--court);text-decoration:underline}
 .pm-empty{color:var(--muted);font-size:13px;padding:10px 4px}
+.hs-row{padding:9px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#eaf5ee}
+.hs-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.hs-tab{font-size:11px;font-weight:700;color:#fff;background:var(--court);border-radius:99px;padding:2px 9px}
+.hs-time{font-family:"Space Grotesk";font-size:11.5px;color:var(--muted);margin-left:auto}
+.hs-players{font-size:13px;line-height:1.5}
+.hs-players b{color:var(--muted);font-weight:600;margin:0 4px}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -358,15 +376,15 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
         <div class="roster" id="roster"></div>
         <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
           <div class="legend">
-            <span><i style="background:var(--gS)"></i>S</span>
-            <span><i style="background:var(--gA)"></i>A</span>
-            <span><i style="background:var(--gB)"></i>B</span>
-            <span><i style="background:var(--gC)"></i>C</span>
-            <span><i style="background:var(--gD)"></i>D</span>
-            <span><i style="background:var(--gE)"></i>E</span>
-            <span><i style="background:var(--gF)"></i>F</span>
+            <span><i style="background:var(--gS)"></i>S(7)</span>
+            <span><i style="background:var(--gA)"></i>A(6)</span>
+            <span><i style="background:var(--gB)"></i>B(5)</span>
+            <span><i style="background:var(--gC)"></i>C(4)</span>
+            <span><i style="background:var(--gD)"></i>D(3)</span>
+            <span><i style="background:var(--gE)"></i>E(2)</span>
+            <span><i style="background:var(--gF)"></i>F(1)</span>
           </div>
-          <p style="font-size:11px;color:var(--muted);margin:8px 0 0">남자는 같은 급수라도 한 급 위로 환산해 밸런스를 계산합니다.</p>
+          <p style="font-size:11px;color:var(--muted);margin:8px 0 0">급수(환산). 남자는 같은 급수라도 한 급 위로 환산해 밸런스를 계산합니다.</p>
           <div class="legend" style="margin-top:8px">
             <span><i style="background:#cfe0fa"></i>남자</span>
             <span><i style="background:#f7cfe0"></i>여자</span>
@@ -442,6 +460,11 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
   </div>
 </div>
 
+<div class="banpanel" id="banpanel" style="display:none">
+  <div class="banpanel-h">🚫 밴 목록 (<span id="banCount">0</span>) <span class="banpanel-sub">— 다시 편성되지 않는 조합</span></div>
+  <div id="banList"></div>
+</div>
+
 <div class="footnote">
   급수 환산: S 7 · A 6 · B 5 · C 4 · D 3 · E 2 · F 1 (남자 +1단계). 팀 전력 = 두 선수 환산값 합.
   밸런스 판정 — 차이 0~1: 좋음 / 2: 주의 / 3 이상: 불균형. 게임 성격 — 4명 환산폭 2 이하: "실력 비슷",
@@ -461,7 +484,8 @@ function eName(id,fb){ const p=id!=null?byId(id):null; return p?p.name:(fb||"선
 /* ---------- 설정: 초청선수 · 파트너 · 생성할 탭 ---------- */
 const DEFAULT_SELECTED={hard:true,fun:true,partner:false};
 const MAX_TEAMS=6;
-let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0 };
+let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[] };
+function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function teamNames(){ return config.teams.map(t=>t.name); }
 function teamObj(name){ return config.teams.find(t=>t.name===name); }
@@ -552,7 +576,8 @@ function genCoverage(sid){
         if(d<bd){bd=d; bslots=[sid,partner,opp[0],opp[1]];}
       }
       if(!bslots) continue;
-      if(seen.has(keyOf(bslots))) continue;
+      const bk=keyOf(bslots);
+      if(seen.has(bk) || isBannedKey(bk)) continue;     // 이미 쓴 조합/밴 제외
       const newCov=t.filter(x=>!covered.has(x)).length;
       const score=newCov*100 - bd*4 + Math.random()*0.6;   // 커버 우선 + 밸런스
       if(score>bs){bs=score; best={slots:bslots,t}; bestCov=newCov;}
@@ -561,6 +586,20 @@ function genCoverage(sid){
     out.push({id:uid(),slots:best.slots}); seen.add(keyOf(best.slots));
     best.t.forEach(x=>covered.add(x));
   }
+  // 유효 조합 수(밴/제약 통과 트리오)
+  let validCount=0;
+  trios.forEach(t=>{
+    const sameGender=byId(t[0]).gender===sgender;
+    const effs=t.map(E), spread=Math.max(...effs)-Math.min(...effs);
+    if(sameGender ? spread>2 : spread>1) return;
+    const strongest=t.reduce((a,b)=>E(a)>=E(b)?a:b);
+    for(const pi of [0,1,2]){
+      const partner=t[pi]; if(sameGender && partner===strongest) continue;
+      const opp=t.filter(x=>x!==partner);
+      if(!isBannedKey(keyOf([sid,partner,opp[0],opp[1]]))){ validCount++; break; }
+    }
+  });
+  tabMeta["cov_"+sid]={validCount, shown:out.length};
   return out;
 }
 
@@ -605,7 +644,7 @@ function combos4(arr){
 function genStyle(style){
   const ids=poolIds();
   const valid=[];
-  combos4(ids).forEach(c=>{const bp=bestPairing(c,style); if(bp) valid.push(bp);});
+  combos4(ids).forEach(c=>{const bp=bestPairing(c,style); if(bp && !isBannedKey(keyOf(bp.slots))) valid.push(bp);});
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || (style==="hard"? a.spread-b.spread : b.spread-a.spread) || a._r-b._r);
   const CAP=24, chosen=[], seen=new Set(), cnt={}; ids.forEach(i=>cnt[i]=0);
@@ -686,7 +725,9 @@ function genPartner(key){
   const valid=[];
   for(let i=0;i<pairs.length;i++)for(let j=i+1;j<pairs.length;j++){
     if(!okMatch(pairs[i],pairs[j])) continue;
-    valid.push({slots:[pairs[i][0],pairs[i][1],pairs[j][0],pairs[j][1]],diff:Math.abs(pp(pairs[i])-pp(pairs[j])),pi:i,pj:j});
+    const slots=[pairs[i][0],pairs[i][1],pairs[j][0],pairs[j][1]];
+    if(isBannedKey(keyOf(slots))) continue;
+    valid.push({slots,diff:Math.abs(pp(pairs[i])-pp(pairs[j])),pi:i,pj:j});
   }
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || a._r-b._r);
@@ -834,7 +875,7 @@ function addOneSingle(sid){
       if(d<bd){bd=d; bslots=[sid,partner,opp[0],opp[1]];}
     }
     if(!bslots) return;
-    if(seen.has(keyOf(bslots))) return;
+    if(seen.has(keyOf(bslots)) || isBannedKey(keyOf(bslots))) return;
     const sc=t.reduce((s,p)=>s+counts[p],0) - t.filter(p=>counts[p]===0).length*50 + bd + Math.random()*0.3;
     if(sc<bs){bs=sc;best=bslots;}
   });
@@ -846,7 +887,7 @@ function addOneStyle(style){
   const seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
   let best=null,bs=1e9;
   combos4(ids).forEach(c=>{
-    if(seen.has(keyOf(c))) return;
+    if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,style); if(!bp) return;
     const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3;
     if(sc<bs){bs=sc;best=bp;}
@@ -875,7 +916,7 @@ function addOnePartner(){
   let best=null,bs=1e9;
   for(let i=0;i<pairs.length;i++)for(let j=i+1;j<pairs.length;j++){
     const slots=[pairs[i][0],pairs[i][1],pairs[j][0],pairs[j][1]];
-    if(seen.has(keyOf(slots))) continue;
+    if(seen.has(keyOf(slots)) || isBannedKey(keyOf(slots))) continue;
     if(Math.abs(pp(pairs[i])-pp(pairs[j]))>1) continue;                       // 전력차 1 이하
     const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;  // 3:1 금지
     const sc=(cnt[i]+cnt[j]) - ((cnt[i]===0?1:0)+(cnt[j]===0?1:0))*50 + Math.abs(pp(pairs[i])-pp(pairs[j]))*0.4 + Math.random()*0.3;
@@ -894,8 +935,35 @@ function foursomeKey(g){
 function syncDone(g){
   const fk=foursomeKey(g); if(!fk) return;
   [...Object.values(tabs).flat(), ...Object.values(tabCache).flat()].forEach(o=>{
-    if(o!==g && foursomeKey(o)===fk){ o.done=g.done; o.doneAt=g.doneAt; }
+    if(o!==g && foursomeKey(o)===fk){ o.done=g.done; o.doneAt=g.doneAt; o.doneTime=g.doneTime; o.doneTab=g.doneTab; }
   });
+}
+// 사람 정보: "이름 남20D"
+function pInfo(id){ const p=id!=null?byId(id):null; return p?`${esc(p.name)} ${p.gender}${p.age}${p.grade}`:"—"; }
+// 밴: 이 조합을 다시 만들지 않음 + 모든 탭/캐시에서 제거
+function banGame(g){
+  const fk=foursomeKey(g); if(!fk) return;
+  if(!isBannedKey(fk)) config.bans.push({key:fk, slots:g.slots.slice()});
+  Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
+  Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
+  games=tabs[activeTab]||[];
+  render(); renderBans();
+}
+function unban(key){ config.bans=config.bans.filter(b=>b.key!==key); renderBans(); persist(); }
+function renderBans(){
+  const panel=document.getElementById("banpanel"), list=document.getElementById("banList"), cnt=document.getElementById("banCount");
+  if(!panel) return;
+  const bans=config.bans||[];
+  panel.style.display=bans.length?"block":"none";
+  if(cnt) cnt.textContent=bans.length;
+  if(list){ list.innerHTML="";
+    bans.forEach(b=>{
+      const s=b.slots, row=document.createElement("div"); row.className="ban-row";
+      row.innerHTML=`<span class="ban-txt">${pInfo(s[0])} · ${pInfo(s[1])} <b>vs</b> ${pInfo(s[2])} · ${pInfo(s[3])}</span>`+
+        `<button class="ban-x" data-unban="${b.key}">해제</button>`;
+      list.appendChild(row);
+    });
+  }
 }
 function playCounts(){
   const c={}; PLAYERS.forEach(p=>c[p.id]=0);
@@ -1068,6 +1136,7 @@ function render(){
       <div class="gc-top">
         <span class="typebadge t-${info.type}">${info.type}</span>
         ${info.nature?`<span class="naturetag nature-${info.nature}">${info.nature==="비슷"?"실력 비슷":"차이 크지만 밸런스"}</span>`:""}
+        <button class="banbtn" ${info.full?"":"disabled"} title="이 조합 다시 만들지 않기(밴)">밴</button>
         <button class="donebtn ${g.done?"on":""}" title="이 게임 완료 표시">완료</button>
         <button class="gx" title="이 게임 삭제">✕</button>
       </div>
@@ -1089,9 +1158,11 @@ function render(){
     });
     card.querySelector(".donebtn").addEventListener("click",()=>{
       g.done=!g.done;
-      if(g.done){ if(!g.doneAt) g.doneAt=++config.doneSeq; } else { g.doneAt=0; }
+      if(g.done){ if(!g.doneAt) g.doneAt=++config.doneSeq; g.doneTime=Date.now(); g.doneTab=specOf(activeTab).label||""; }
+      else { g.doneAt=0; g.doneTime=0; }
       syncDone(g); render();
     });
+    const bb=card.querySelector(".banbtn"); if(bb) bb.addEventListener("click",()=>banGame(g));
     card.querySelector(".gx").addEventListener("click",()=>{
       const ix=games.findIndex(x=>x.id===g.id); if(ix>=0) games.splice(ix,1); render();
     });
@@ -1168,9 +1239,8 @@ function renderSide(){
     const grpTag=teamLogoImg(p);
     row.innerHTML=`
       ${gradeBadge(p)}
-      ${isInvited(p.id)?'<span class="inv-tag">초청</span>':''}
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
-      <span class="meta"><span>${p.age}대</span><span class="num" title="환산값">환산 ${eff(p)}</span></span>
+      <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
         <span class="played num ${dc[p.id]?"":"z"}" title="완료한 게임 (전체 탭)">${dc[p.id]}</span>
         <span class="plays num ${c===0?"zero":""}" title="배정된 게임 (이 탭)">${c}</span>
@@ -1197,8 +1267,8 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0) };
-  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; }
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[] };
+  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
   tabs={};
   Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),done:!!g.done})):[]; });
@@ -1222,8 +1292,8 @@ function resetAll(){
   if(!confirm("모든 데이터(명단·설정·편성·팀 로고)를 완전히 삭제하고 처음 상태로 되돌립니다. 진행할까요?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
-  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0 };
-  renderTabsBar(); renderConfig(); render();
+  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[] };
+  renderTabsBar(); renderConfig(); render(); renderBans();
 }
 
 /* ---------------- roster import (Excel/CSV) ---------------- */
@@ -1483,15 +1553,16 @@ function openHistoryModal(){
   [...Object.values(tabs).flat(), ...Object.values(tabCache).flat()].forEach(g=>{
     if(!g.done) return; const fk=foursomeKey(g); if(!fk||seen.has(fk)) return; seen.add(fk); items.push(g);
   });
-  items.sort((a,b)=>(a.doneAt||0)-(b.doneAt||0));
-  if(!items.length){ body.innerHTML=`<div class="pm-empty">아직 완료한 게임이 없습니다. 카드의 '완료'를 체크하면 여기에 순서대로 쌓여요.</div>`; }
-  const nm=id=>{ const q=id!=null?byId(id):null; return q?esc(q.name):"—"; };
+  items.sort((a,b)=>((a.doneTime||a.doneAt||0)-(b.doneTime||b.doneAt||0)));
+  if(!items.length){ body.innerHTML=`<div class="pm-empty">아직 완료한 게임이 없습니다. 카드의 '완료'를 누르면 여기에 순서대로 쌓여요.</div>`; document.getElementById("historyModal").style.display="flex"; return; }
+  const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
   items.forEach((g,i)=>{
-    const row=document.createElement("div"); row.className="pm-game done";
-    row.innerHTML=`<span class="pm-no">${i+1}</span>`+
-      `<span class="pm-team">${nm(g.slots[0])} · ${nm(g.slots[1])}</span>`+
-      `<span class="pm-vs">vs</span>`+
-      `<span class="pm-team">${nm(g.slots[2])} · ${nm(g.slots[3])}</span>`;
+    const start=i>0?(items[i-1].doneTime||0):0, end=g.doneTime||0;
+    const row=document.createElement("div"); row.className="hs-row";
+    row.innerHTML=`<div class="hs-head"><span class="pm-no">${i+1}</span>`+
+      `<span class="hs-tab">${esc(g.doneTab||"게임")}</span>`+
+      `<span class="hs-time">${fmt(start)} ~ ${fmt(end)}</span></div>`+
+      `<div class="hs-players">${pInfo(g.slots[0])} · ${pInfo(g.slots[1])} <b>vs</b> ${pInfo(g.slots[2])} · ${pInfo(g.slots[3])}</div>`;
     body.appendChild(row);
   });
   document.getElementById("historyModal").style.display="flex";
@@ -1587,6 +1658,7 @@ document.getElementById("pmClose").addEventListener("click",closePlayerModal);
 document.getElementById("pmDone").addEventListener("click",closePlayerModal);
 document.getElementById("playerModal").addEventListener("click",e=>{ if(e.target.id==="playerModal") closePlayerModal(); });
 document.getElementById("btnHistory").addEventListener("click",openHistoryModal);
+document.getElementById("banList").addEventListener("click",e=>{ const b=e.target.closest("[data-unban]"); if(b) unban(b.dataset.unban); });
 document.getElementById("hsClose").addEventListener("click",closeHistoryModal);
 document.getElementById("hsDone").addEventListener("click",closeHistoryModal);
 document.getElementById("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") closeHistoryModal(); });
@@ -1638,6 +1710,7 @@ if(!_loaded){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) _loaded=rest
 if(!_loaded){ defaultInvited(); renderTabsBar(); }   // 명단 없으면 빈 상태 안내만
 renderConfig();
 setTab(activeTab);
+renderBans();
 
 </script>
 </body>
