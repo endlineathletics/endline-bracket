@@ -62,6 +62,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .cp-btn:hover{background:var(--court);color:#fff}
 .cc-slot{border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:15px;background:#fff;margin-top:7px;color:var(--ink)}
 .cc-slot.male{background:#edf3fd}.cc-slot.female{background:#fdedf4}.cc-slot.sgrade{background:#ecf6ef}
+#ccBody .vs{cursor:default}
+#ccBody .vs:hover{background:transparent}
 .ce-step{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:4px}
 .ce-btn{font-family:inherit;font-size:22px;font-weight:700;width:42px;height:42px;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;cursor:pointer;line-height:1}
 .ce-btn:hover:not(:disabled){background:var(--court);color:#fff}
@@ -116,6 +118,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 /* ---------- sidebar ---------- */
 .side{position:sticky;top:84px;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 104px);overflow:auto;padding-right:4px}
+.side::after{content:"";position:sticky;bottom:-1px;flex:none;display:block;height:30px;margin-top:-30px;background:linear-gradient(to bottom,rgba(238,241,236,0) 0%,var(--paper) 92%);pointer-events:none;z-index:2}
 @media(max-width:1040px){.side{position:static;max-height:none;overflow:visible}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .panel-h{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
@@ -289,6 +292,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .cfg-chip:hover:not(:disabled){border-color:var(--court);color:var(--court)}
 .cfg-chip.on{background:var(--court);border-color:var(--court);color:#fff}
 .cfg-chip.off{opacity:.4;cursor:not-allowed}
+.cfg-chip.disabled{opacity:.45;border-style:dashed;background:#fafbfa}
+.cfg-chip.disabled:hover{border-color:var(--line);color:var(--muted)}
 .cfg-hint{font-size:13px;color:var(--muted)}
 .cfg-pairs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
 .pair-chip{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;
@@ -950,7 +955,8 @@ function tabOptionList(){
   const inv=invitedIds(), opts=[];
   inv.forEach(id=>opts.push({id:"cov_"+id,type:"coverage",param:id,label:`${eName(id)}`,desc:`${eName(id)} 필수 포함`}));
   STATIC_OPTS.forEach(o=>opts.push({...o}));
-  if(config.pairs.length) opts.push({id:"partner",type:"partner",label:"파트너전",desc:"고정 파트너끼리 한 팀"});
+  // 파트너전: 파트너 미등록이어도 칩은 보이되 비활성(클릭 시 안내)
+  opts.push({id:"partner",type:"partner",label:"파트너전",desc:"고정 파트너끼리 한 팀",needPair:!config.pairs.length});
   return opts;
 }
 function genForSpec(s){
@@ -1007,6 +1013,7 @@ function rebuildTabs(regen){
 function generateTabs(){ tabCache={}; tabs={}; tabMeta={}; rebuildTabs(true); }   // 전체 새 편성
 // 탭 옵션 클릭 → 즉시 생성/제거(live)
 function toggleTabOption(id){
+  if(id==="partner" && !config.pairs.length){ alert("파트너를 추가해주세요.\n⚙ 설정 → 파트너에서 페어를 먼저 지정하세요."); return; }
   config.selected[id]=!config.selected[id];
   rebuildTabs(false);
   setTab(activeTab); renderConfig();
@@ -1841,8 +1848,9 @@ function renderConfig(){
   tabWrap.innerHTML="";
   tabOptionList().forEach(o=>{
     const b=document.createElement("button");
-    b.className="cfg-chip"+(config.selected[o.id]?" on":""); b.dataset.tab=o.id;
+    b.className="cfg-chip"+(config.selected[o.id]&&!o.needPair?" on":"")+(o.needPair?" disabled":""); b.dataset.tab=o.id;
     b.textContent=o.label;
+    if(o.needPair) b.title="파트너를 추가해주세요";
     tabWrap.appendChild(b);
   });
 }
@@ -1915,7 +1923,7 @@ document.getElementById("courtEdit").addEventListener("click",e=>{ if(e.target.i
   let dragEl=null, armed=false, holdT=null, startX=0, startY=0;
   function clearHold(){ if(holdT){ clearTimeout(holdT); holdT=null; } }
   function arm(){ armed=true; if(dragEl) dragEl.classList.add("dragmode"); }
-  function rebuild(){ const order=[...gel.querySelectorAll(".gc")].map(el=>+el.dataset.gid); games.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id)); }
+  function rebuild(){ const order=[...gel.querySelectorAll(".gc")].map(el=>el.dataset.gid); games.sort((a,b)=>order.indexOf(String(a.id))-order.indexOf(String(b.id))); }
   gel.addEventListener("pointerdown",e=>{
     const vs=e.target.closest(".vs"); if(!vs) return;
     dragEl=vs.closest(".gc"); if(!dragEl){ return; }
@@ -1924,17 +1932,24 @@ document.getElementById("courtEdit").addEventListener("click",e=>{ if(e.target.i
     else arm();
     try{ vs.setPointerCapture(e.pointerId); }catch(_){}
   });
+  // 그리드(여러 열) 대응: 읽기 순서로 포인터보다 '뒤'인 첫 카드 앞에 끼움
+  function dropBefore(x,y){
+    const els=[...gel.querySelectorAll(".gc")].filter(el=>el!==dragEl);
+    for(const el of els){
+      const r=el.getBoundingClientRect();
+      if(y < r.top) return el;                          // 윗줄 → 그 줄 맨 앞에
+      if(y <= r.bottom && x < r.left + r.width/2) return el;  // 같은 줄, 중앙보다 왼쪽
+    }
+    return null;                                        // 맨 뒤로
+  }
   gel.addEventListener("pointermove",e=>{
     if(!dragEl) return;
     if(!armed){ if(Math.hypot(e.clientX-startX,e.clientY-startY)>10){ clearHold(); dragEl=null; } return; }
     e.preventDefault();
-    dragEl.style.pointerEvents="none";
-    const under=document.elementFromPoint(e.clientX,e.clientY);
-    dragEl.style.pointerEvents="";
-    const tcard=under&&under.closest(".gc");
-    if(tcard && tcard!==dragEl && tcard.parentElement===gel){
-      const r=tcard.getBoundingClientRect();
-      gel.insertBefore(dragEl, (e.clientY<r.top+r.height/2)?tcard:tcard.nextSibling);
+    const before=dropBefore(e.clientX,e.clientY);
+    if(before!==dragEl){
+      if(before) gel.insertBefore(dragEl, before);
+      else gel.appendChild(dragEl);
     }
   });
   function endDrag(){ clearHold(); if(dragEl&&armed){ dragEl.classList.remove("dragmode"); rebuild(); render(); } dragEl=null; armed=false; }
