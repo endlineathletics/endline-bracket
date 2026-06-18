@@ -421,10 +421,10 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
           </div>
         </div>
         <div class="cfg-sec">
-          <div class="cfg-label" style="position:relative">생성할 탭 <span class="cfg-sub">클릭하면 바로 생김/사라짐</span>
+          <div class="cfg-label" style="position:relative">생성할 탭
             <button class="help-q" id="tabHelp" type="button" title="각 탭 기준">?</button>
             <span class="help-pop" id="tabHelpPop" style="font-weight:400">
-              <b>○○ (전담)</b> — 초청선수 ○○ + 나머지 3명(전부 같은 성별). 모든 인원이 ○○와 1번 이상.<br><br>
+              <b>초청선수</b> — 초청선수 + 나머지 3명. 모든 인원이 초청선수와 1번 이상 게임.<br>나머지 3명은 같은 성별(초청선수만 반대 성별 가능 = 혼복). 혼복일 땐 그 3명(여자끼리)이 환산 1 이하 차이.<br><br>
               <b>빡겜</b> — 4명 실력 비슷(환산폭 2 이하) + 양 팀 전력 차 1 이하.<br><br>
               <b>즐겜</b> — 4명 급수차는 크지만(환산폭 3 이상) 양 팀 전력 차 1 이하.<br><br>
               <b>파트너전</b> — 지정한 고정 파트너끼리 한 팀, 양 팀 전력 차 1 이하.<br><br>
@@ -585,6 +585,7 @@ function activeGameOnCourt(cid){ const c=config.courts.find(x=>x.id===cid); retu
 function busyIdSet(){ const s=new Set(); activeGames().forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); return s; }
 function emptyCourts(){ return config.courts.filter(c=>!c.game); }
 let _cuid=1; const courtId=()=>"ct"+(_cuid++);
+function ensureCourt(){ if(!config.courts.length) config.courts=[{id:courtId(), num:1, game:null}]; }
 // '가능자 매칭' 탭이 있으면 현재 가능 인원으로 다시 편성
 function refreshAvail(){
   const spec=tabSpecs.find(s=>s.type==="avail");
@@ -1506,6 +1507,7 @@ function resetAll(){
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
   config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[] };
+  ensureCourt();
   renderTabsBar(); renderConfig(); render(); renderBans(); renderCourts();
 }
 
@@ -1988,6 +1990,7 @@ let _loaded=false;
 if(window.__ENDLINE_STATE__) _loaded=restore(window.__ENDLINE_STATE__);
 if(!_loaded){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) _loaded=restore(JSON.parse(s)); }catch(e){} }
 if(!_loaded){ defaultInvited(); renderTabsBar(); }   // 명단 없으면 빈 상태 안내만
+ensureCourt();   // 코트는 기본 1개
 renderConfig();
 setTab(activeTab);
 renderBans();
