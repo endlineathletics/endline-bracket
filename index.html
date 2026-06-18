@@ -21,9 +21,9 @@ html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--paper); color:var(--ink);
   font-family:"Pretendard","Pretendard Variable",system-ui,-apple-system,sans-serif;
-  line-height:1.45; font-size:14px;
+  line-height:1.5; font-size:16px;
 }
-.num{font-family:"Space Grotesk",ui-monospace,monospace;font-feature-settings:"tnum"}
+.num{font-feature-settings:"tnum"}
 h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 /* ---------- top bar ---------- */
@@ -35,21 +35,24 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .courtbar{position:sticky;top:0;z-index:48;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(20,40,30,.06)}
 .courtbar-inner{max-width:1480px;margin:0 auto;padding:10px 22px;display:flex;align-items:stretch;gap:10px;overflow-x:auto}
 .courtbar-title{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;flex:none;padding-right:4px}
-.court{flex:none;min-width:150px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;background:#fafbf9}
+.court{flex:none;min-width:215px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;background:#fafbf9}
 .court.busy{border-color:var(--court);background:#f1f8f3}
-.court.busy.warn{border-color:var(--warn);background:var(--warnbg)}
+.court.busy.warn{border-color:#f6a93b;background:var(--warnbg)}
 .court.busy.red{border-color:var(--bad);background:var(--badbg)}
-.court-top{display:flex;align-items:center;gap:6px}
-.court-no{font-family:"Space Grotesk";font-weight:700;font-size:14px;color:var(--court-d)}
-.court-numinp{width:46px;font-family:"Space Grotesk";font-weight:700;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:7px;padding:3px}
-.court-del{margin-left:auto;border:none;background:var(--badbg);color:var(--bad);border-radius:6px;width:20px;height:20px;font-size:10px;cursor:pointer;padding:0}
-.court-status{font-size:11.5px;color:var(--muted)}
-.court-names{font-size:11.5px;line-height:1.45;color:var(--ink)}
-.court-timer{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:var(--court)}
-.court.warn .court-timer{color:var(--warn)} .court.red .court-timer{color:var(--bad)}
-.court-end{border:none;background:var(--court);color:#fff;border-radius:8px;padding:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.court-top{display:flex;align-items:center;gap:8px}
+.court-no{font-weight:700;font-size:17px;color:var(--court-d)}
+.court-tab{margin-left:auto;font-size:11.5px;font-weight:700;color:#fff;background:var(--court);border-radius:99px;padding:2px 9px}
+.court-status{font-size:13px;color:var(--muted)}
+.court-team{font-size:13.5px;line-height:1.4;color:var(--ink);font-weight:500}
+.court-vs2{font-size:11px;font-weight:700;color:var(--muted);text-align:center;letter-spacing:.08em}
+.court-timer{font-weight:500;font-size:13px;color:#f59e0b}
+.court.warn .court-timer{color:#f59e0b} .court.red .court-timer{color:var(--bad)}
+.court-btns{display:flex;gap:6px;margin-top:2px}
+.court-cancel{flex:1;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:6px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.court-cancel:hover{border-color:var(--bad);color:var(--bad)}
+.court-end{flex:1;border:none;background:var(--court);color:#fff;border-radius:8px;padding:6px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .court-end:hover{background:var(--court-d)}
-.court-add{flex:none;min-width:90px;border:1.5px dashed var(--line);border-radius:12px;background:#fff;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
+.court-add{flex:none;min-width:100px;border:1.5px dashed var(--line);border-radius:12px;background:#fff;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
 .court-add:hover{border-color:var(--court);color:var(--court)}
 .cp-bg{position:fixed;inset:0;z-index:210;background:rgba(20,40,30,.4);display:flex;align-items:center;justify-content:center}
 .cp-box{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;min-width:240px}
@@ -61,12 +64,12 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .ce-btn{font-family:inherit;font-size:22px;font-weight:700;width:42px;height:42px;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;cursor:pointer;line-height:1}
 .ce-btn:hover:not(:disabled){background:var(--court);color:#fff}
 .ce-btn:disabled{opacity:.3;cursor:not-allowed}
-.ce-n{font-family:"Space Grotesk";font-weight:700;font-size:30px;min-width:44px}
+.ce-n{font-weight:700;font-size:30px;min-width:44px}
 .ce-steplbl{font-size:11.5px;color:var(--muted);margin-bottom:12px}
 .ce-list{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
 .ce-row{display:flex;align-items:center;gap:8px;font-size:13px}
 .ce-lbl{flex:1;text-align:left;color:var(--muted)}
-.ce-num{width:64px;font-family:"Space Grotesk";font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px}
+.ce-num{width:64px;font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px}
 /* 진행중 카드 페이드 / 시간경고 / 게임중인 사람 회색 */
 .gc.blocked{opacity:.5}
 .gc.playing{box-shadow:0 0 0 2px var(--court) inset}
@@ -78,20 +81,21 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .startbtn:disabled{opacity:.4;cursor:not-allowed}
 .startbtn.end{background:var(--bad);border-color:var(--bad)}
 .startbtn.end:hover{background:#b23030}
-.gc-timer{font-family:"Space Grotesk";font-weight:700;font-size:12px;color:var(--court);margin-left:6px}
+.gc-timer{font-weight:700;font-size:12px;color:var(--court);margin-left:6px}
 .gc.warn-time .gc-timer{color:var(--warn)} .gc.red-time .gc-timer{color:var(--bad)}
-.gc .vs{cursor:pointer}
-.gc.dragmode{transform:scale(1.04);box-shadow:0 10px 28px rgba(0,0,0,.2);cursor:grab;position:relative;z-index:5}
+.gc .vs{cursor:grab;touch-action:none;user-select:none;padding:5px 0;border-radius:8px}
+.gc .vs:hover{background:#f1f5ef}
+.gc.dragmode{transform:scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.22);cursor:grabbing;position:relative;z-index:5;opacity:.95}
 .gc.dragging{opacity:.45}
 .hs-tag{font-size:11px;font-weight:700;color:#fff;border-radius:99px;padding:2px 9px}
 .hs-tag.남복{background:#3E7BFA}.hs-tag.여복{background:#E5499B}.hs-tag.혼복{background:#8B5CF6}.hs-tag.초청{background:var(--court)}
 .topbar-inner{max-width:1480px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .brand{display:flex;align-items:baseline;gap:10px}
-.brand .logo{font-family:"Space Grotesk";font-weight:700;font-size:20px;letter-spacing:.12em}
+.brand .logo{font-weight:700;font-size:20px;letter-spacing:.12em}
 .brand .sub{font-size:12.5px;color:#cfe7d8;letter-spacing:.02em}
 .topbar .spacer{flex:1}
 .btn{
-  font-family:inherit;font-size:13px;font-weight:600;border:none;border-radius:10px;
+  font-family:inherit;font-size:15px;font-weight:600;border:none;border-radius:10px;
   padding:9px 15px;cursor:pointer;transition:transform .08s,box-shadow .15s,background .15s;
   display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
 }
@@ -118,14 +122,14 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat{background:var(--paper);border-radius:10px;padding:10px 12px}
-.stat .v{font-family:"Space Grotesk";font-size:22px;font-weight:700;line-height:1}
+.stat .v{font-size:22px;font-weight:700;line-height:1}
 .stat .l{font-size:11.5px;color:var(--muted);margin-top:3px}
 
 /* S coverage */
 .scov{display:flex;flex-direction:column;gap:14px}
 .scov-block .scov-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
 .scov-top .who{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px}
-.scov-top .cnt{font-family:"Space Grotesk";font-size:12.5px;font-weight:600;color:var(--muted)}
+.scov-top .cnt{font-size:12.5px;font-weight:600;color:var(--muted)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--court),var(--lime-d));border-radius:99px;transition:width .3s}
 .remain{margin-top:7px;font-size:11.5px;color:var(--muted);line-height:1.7}
@@ -134,7 +138,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 /* roster */
 .roster{display:flex;flex-direction:column;gap:6px}
-.rcard{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:default;transition:border-color .12s,background .12s}
+.rcard{position:relative;display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:default;transition:border-color .12s,background .12s}
+.busy-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#f59e0b;border:2px solid #fff;z-index:2}
 .rcard.male{background:#edf3fd;border-color:#d7e4fb}
 .rcard.female{background:#fdedf4;border-color:#f8d9e6}
 .rcard.male:hover{background:#e3edfb}
@@ -142,7 +147,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .rcard.sgrade{background:#ecf6ef;border-color:#d3e9db}
 .rcard.sgrade:hover{background:#e3f1e8}
 .inv-tag{font-size:10px;font-weight:700;color:#fff;background:var(--court);border-radius:6px;padding:3px 7px;flex:none;letter-spacing:.02em;line-height:1}
-.gbadge{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:#fff;font-family:"Space Grotesk";font-weight:700;font-size:13px;flex:none}
+.gbadge{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
 .gS{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
 .gA{background:var(--gA)}.gB{background:var(--gB)}.gC{background:var(--gC)}.gD{background:var(--gD)}.gE{background:var(--gE)}.gF{background:var(--gF)}
 .rcard .nm{font-weight:600;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -150,14 +155,15 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .tag{font-size:10.5px;padding:1px 6px;border-radius:99px;background:var(--paper);color:var(--muted);font-weight:600}
 .tag.endline{background:#e7f3ec;color:var(--court-d)}
 .tag.guest{background:#fdeede;color:#a85a16}
+.tag.inv{background:var(--court);color:#fff}
 .tag.team{background:#e7f3ec;color:var(--court-d);display:inline-flex;align-items:center;gap:4px}
 .tag-icon{height:13px;width:auto;max-width:22px;object-fit:contain;display:inline-block;vertical-align:-2px;flex:none}
 .rlogo{width:22px;height:22px;border-radius:5px;object-fit:contain;background:transparent;border:none;flex:none;display:inline-block;vertical-align:middle}
 .nmwrap{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
-.rcard .plays{font-family:"Space Grotesk";font-size:12px;font-weight:700;color:var(--court);background:#eaf5ee;border-radius:7px;padding:2px 7px;flex:none;min-width:30px;text-align:center}
+.rcard .plays{font-size:12px;font-weight:700;color:var(--court);background:#eaf5ee;border-radius:7px;padding:2px 7px;flex:none;min-width:30px;text-align:center}
 .rcard .plays.zero{color:var(--bad);background:var(--badbg)}
 .rcard .cnts{display:flex;gap:4px;flex:none;align-items:center}
-.rcard .played{font-family:"Space Grotesk";font-size:12px;font-weight:700;color:#fff;background:var(--ok);border-radius:7px;padding:2px 7px;min-width:30px;text-align:center}
+.rcard .played{font-size:12px;font-weight:700;color:#fff;background:var(--ok);border-radius:7px;padding:2px 7px;min-width:30px;text-align:center}
 .rcard .played.z{color:var(--muted);background:#e7ece8}
 
 .legend{display:flex;flex-wrap:wrap;gap:5px 10px;font-size:11px;color:var(--muted)}
@@ -169,7 +175,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .tab{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 16px;cursor:pointer;transition:border-color .12s,background .12s,box-shadow .12s}
 .tab .trow{display:flex;align-items:center;gap:7px}
 .tab .tt{font-weight:700;font-size:15px;color:var(--ink)}
-.tab .tcount{font-family:"Space Grotesk";font-size:11px;font-weight:700;color:var(--court-d);background:#eaf5ee;border-radius:99px;padding:1px 7px}
+.tab .tcount{font-size:11px;font-weight:700;color:var(--court-d);background:#eaf5ee;border-radius:99px;padding:1px 7px}
 .tab .td{font-size:11px;color:var(--muted)}
 .tab:hover{background:#f6faf5;border-color:#c8d6c9}
 .tab.on{background:var(--court);border-color:var(--court);box-shadow:var(--shadow)}
@@ -214,7 +220,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .ban-x{border:none;background:var(--badbg);color:var(--bad);border-radius:7px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer}
 .ban-x:hover{background:var(--bad);color:#fff}
 .gc-top{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:#fafdf8}
-.gc-no{font-family:"Space Grotesk";font-weight:700;font-size:15px;background:var(--ink);color:#fff;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
+.gc-no{font-weight:700;font-size:15px;background:var(--ink);color:#fff;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
 .gc-no.has-s{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
 .typebadge{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.02em}
 .t-혼복{background:#efe7fb;color:#6b3fb0}
@@ -232,12 +238,12 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .team{border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:#fcfdfb}
 .team-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
 .team-h .lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
-.team-h .pow{font-family:"Space Grotesk";font-size:12px;font-weight:700;color:var(--court)}
+.team-h .pow{font-size:12px;font-weight:700;color:var(--court)}
 .powbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:9px}
 .powbar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--court-d),var(--court))}
 .slot{display:flex;align-items:center;gap:8px;margin:6px 0}
 .slot select{
-  flex:1;font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  flex:1;font-family:inherit;font-size:15px;font-weight:500;color:var(--ink);
   border:1px solid var(--line);border-radius:9px;padding:8px 9px;background:#fff;cursor:pointer;min-width:0;
   appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23697B70' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;
@@ -249,7 +255,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .slot select.sgrade{background-color:#ecf6ef}
 .slot select.dupe{border-color:var(--bad);background-color:var(--badbg)}
 .vs{display:flex;align-items:center;justify-content:center;margin:2px 0}
-.vs .b{font-family:"Space Grotesk";font-weight:700;font-size:12px;color:var(--ink);letter-spacing:.08em}
+.vs .b{font-weight:700;font-size:12px;color:var(--ink);letter-spacing:.08em}
 
 .gc-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;background:#fafbf9}
 .flag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;display:inline-flex;align-items:center;gap:5px}
@@ -295,7 +301,9 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 /* ---------- 명단 편집 모달 ---------- */
 .modal-bg{position:fixed;inset:0;z-index:200;background:rgba(20,40,30,.45);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal{background:#fff;border-radius:16px;width:min(720px,100%);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
-.modal-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--court);color:#fff}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--court);color:#fff;gap:10px;flex-wrap:wrap}
+.modal-h-btns{display:flex;gap:7px;margin-left:auto;margin-right:12px}
+.modal-h-btns .btn{font-size:12px;padding:6px 11px}
 .modal-h h2{font-size:16px}
 .modal-x{background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
 .modal-x:hover{background:rgba(255,255,255,.28)}
@@ -329,7 +337,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .pm-tab:first-child{margin-top:0}
 .pm-game{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;font-size:13px;flex-wrap:wrap}
 .pm-game.done{background:#eaf5ee}
-.pm-no{font-family:"Space Grotesk";font-weight:700;color:var(--muted);min-width:18px}
+.pm-no{font-weight:700;color:var(--muted);min-width:18px}
 .pm-team{display:inline-flex;gap:5px;align-items:center}
 .pm-vs{color:var(--muted);font-weight:700;font-size:11px;margin:0 2px}
 .pm-me{font-weight:700;color:var(--court);text-decoration:underline}
@@ -337,7 +345,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .hs-row{padding:9px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#eaf5ee}
 .hs-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
 .hs-tab{font-size:11px;font-weight:700;color:#fff;background:var(--court);border-radius:99px;padding:2px 9px}
-.hs-time{font-family:"Space Grotesk";font-size:11.5px;color:var(--muted);margin-left:auto}
+.hs-time{font-size:11.5px;color:var(--muted);margin-left:auto}
 .hs-players{font-size:13px;line-height:1.5}
 .hs-players b{color:var(--muted);font-weight:600;margin:0 4px}
 </style>
@@ -352,10 +360,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     </div>
     <div class="spacer"></div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
-    <button class="btn btn-primary" id="btnImport">⬆ 엑셀 불러오기</button>
-    <button class="btn btn-soft" id="btnTemplate">양식</button>
     <button class="btn btn-primary" id="btnEdit">✎ 명단 편집</button>
-    <button class="btn btn-soft" id="btnRoster">명단 내보내기</button>
     <button class="btn btn-ghost" id="btnDemo">🧪 테스트 데이터</button>
     <button class="btn btn-ghost" id="btnGen">＋ 자동 생성</button>
     <button class="btn btn-soft" id="btnHistory">게임 내역</button>
@@ -492,7 +497,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 <!-- 명단 편집 모달 -->
 <div class="modal-bg" id="rosterModal" style="display:none">
   <div class="modal">
-    <div class="modal-h"><h2>명단 편집</h2><button class="modal-x" id="rmClose">✕</button></div>
+    <div class="modal-h"><h2>명단 편집</h2><div class="modal-h-btns"><button class="btn btn-primary" id="btnImport">⬆ 엑셀 불러오기</button><button class="btn btn-soft" id="btnTemplate">양식</button><button class="btn btn-soft" id="btnRoster">명단 내보내기</button></div><button class="modal-x" id="rmClose">✕</button></div>
     <div class="modal-b">
       <div class="rm-sec-title" style="border-top:none;padding-top:0">팀 목록 <span style="font-weight:500;font-size:11px;color:var(--muted)">· 최대 6팀 · 추가/이미지 업로드</span></div>
       <div class="rm-teamadd">
@@ -568,11 +573,16 @@ function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
 let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
 // 진행중 게임(코트 배정됨) / 코트 점유 / 게임중인 사람
-function activeGames(){ return Object.values(tabs).flat().filter(g=>g.court!=null); }
-function activeGameOnCourt(cid){ return activeGames().find(g=>g.court===cid); }
+function activeGames(){ return config.courts.filter(c=>c.game).map(c=>c.game); }
+function activeGameOnCourt(cid){ const c=config.courts.find(x=>x.id===cid); return c?c.game:null; }
 function busyIdSet(){ const s=new Set(); activeGames().forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); return s; }
-function emptyCourts(){ const occ=new Set(activeGames().map(g=>g.court)); return config.courts.filter(c=>!occ.has(c.id)); }
+function emptyCourts(){ return config.courts.filter(c=>!c.game); }
 let _cuid=1; const courtId=()=>"ct"+(_cuid++);
+// '가능자 매칭' 탭이 있으면 현재 가능 인원으로 다시 편성
+function refreshAvail(){
+  const spec=tabSpecs.find(s=>s.type==="avail");
+  if(spec){ tabs[spec.key]=genForSpec(spec); if(activeTab===spec.key) games=tabs[spec.key]; }
+}
 
 /* ---------------- 코트 운영 ---------------- */
 function elapsedMin(start){ return Math.floor((Date.now()-start)/60000); }
@@ -585,10 +595,11 @@ function renderCourts(){
     if(g){
       const min=elapsedMin(g.startTime), cls=min>=20?"red":(min>=15?"warn":"");
       el.className="court busy "+cls;
-      const nm=i=>g.slots[i]!=null?esc(byId(g.slots[i]).name):"—";
-      el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span><span class="court-timer" data-start="${g.startTime}">${min}분</span></div>`+
-        `<div class="court-names">${nm(0)}·${nm(1)} vs ${nm(2)}·${nm(3)}</div>`+
-        `<button class="court-end" data-end="${g.id}">종료</button>`;
+      el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span><span class="court-timer" data-start="${g.startTime}">${min}분</span><span class="court-tab">${esc(g.startTab||"")}</span></div>`+
+        `<div class="court-team">${esc(pInfo(g.slots[0]))} · ${esc(pInfo(g.slots[1]))}</div>`+
+        `<div class="court-vs2">VS</div>`+
+        `<div class="court-team">${esc(pInfo(g.slots[2]))} · ${esc(pInfo(g.slots[3]))}</div>`+
+        `<div class="court-btns"><button class="court-cancel" data-cancel="${ct.id}">취소</button><button class="court-end" data-end="${ct.id}">종료</button></div>`;
     } else {
       el.className="court empty";
       el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span></div>`+
@@ -648,15 +659,35 @@ function startGame(g){
   pop.style.display="flex";
 }
 function closeCourtPicker(){ const p=document.getElementById("courtPicker"); if(p) p.style.display="none"; }
-function assignCourt(g,cid){ g.court=cid; g.startTime=Date.now(); g.startTab=specOf(activeTab).label||""; renderCourts(); render(); persist(); }
-function endGame(gid){
-  const g=activeGames().find(x=>x.id===gid); if(!g) return;
+function assignCourt(g,cid){
+  const ct=config.courts.find(c=>c.id===cid); if(!ct||ct.game) return;
+  // 대진표(현재 탭)에서 카드 제거 → 코트로 이동. 같은 4명 카드는 모든 탭에서 제거.
+  const fk=foursomeKey(g);
+  Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
+  Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
+  g.startTime=Date.now(); g.startTabKey=activeTab; g.startTab=specOf(activeTab).label||"";
+  ct.game=g;
+  games=tabs[activeTab]||[];
+  refreshAvail(); renderCourts(); render(); persist();
+}
+function cancelGame(cid){   // 코트에서 빼서 다시 대진표로 (기록 안 남김)
+  const ct=config.courts.find(c=>c.id===cid); if(!ct||!ct.game) return;
+  const g=ct.game; ct.game=null;
+  delete g.startTime; delete g.startTab;
+  const k=(g.startTabKey&&tabs[g.startTabKey])?g.startTabKey:activeTab;
+  if(k && tabs[k]) tabs[k].unshift({id:uid(),slots:g.slots.slice()});
+  games=tabs[activeTab]||[];
+  refreshAvail(); renderCourts(); render(); persist();
+}
+function endGame(cid){
+  const ct=config.courts.find(c=>c.id===cid); if(!ct||!ct.game) return;
+  const g=ct.game; ct.game=null;
   const info=analyzeGame(g), inv=g.slots.some(x=>x!=null&&isInvited(x)), fk=foursomeKey(g);
   config.completed.push({key:fk, slots:g.slots.slice(), players:g.slots.map(s=>pInfo(s)), type:info.type, tab:g.startTab||"", inv, startTime:g.startTime, endTime:Date.now()});
   Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
   Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
   games=tabs[activeTab]||[];
-  renderCourts(); render(); persist();
+  refreshAvail(); renderCourts(); render(); persist();
 }
 function updateCourtTimers(){
   if(!activeGames().length) return;
@@ -668,23 +699,12 @@ function updateCourtTimers(){
 }
 setInterval(updateCourtTimers, 10000);
 
-/* ---------------- 순서 드래그 (VS 클릭 → 확대 → 이동) ---------------- */
-let _dragId=null;
-function wireDrag(card, g){
-  const vs=card.querySelector(".vs"); if(!vs) return;
-  vs.addEventListener("click",()=>{
-    const on=card.classList.toggle("dragmode");
-    card.draggable=on;
-  });
-  card.addEventListener("dragstart",e=>{ _dragId=g.id; card.classList.add("dragging"); try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text","x");}catch(_){} });
-  card.addEventListener("dragend",()=>{ card.classList.remove("dragging","dragmode"); card.draggable=false; _dragId=null; });
-}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function teamNames(){ return config.teams.map(t=>t.name); }
 function teamObj(name){ return config.teams.find(t=>t.name===name); }
 function logoFor(team){ if(!team) return null; const t=teamObj(team); return (t&&t.logo) || (team==="엔드라인"?ENDLINE_ICON:null); }
 // 전체 인원: 팀 로고 이미지만 (이름·태그 없음). 없으면 빈칸.
-function teamLogoImg(p){ if(p.guest) return `<span class="tag guest">게스트</span>`; const logo=logoFor(p.team); return logo?`<img class="rlogo" src="${logo}" alt="">`:""; }
+function teamLogoImg(p){ if(isInvited(p.id)) return `<span class="tag inv">초청</span>`; if(p.guest) return `<span class="tag guest">게스트</span>`; const logo=logoFor(p.team); return logo?`<img class="rlogo" src="${logo}" alt="">`:""; }
 function nextPid(){ return PLAYERS.reduce((m,p)=>Math.max(m,p.id),0)+1; }
 // 이미지 → 작은 PNG dataURL (localStorage 용량 절약)
 function fileToLogo(file,cb){
@@ -858,35 +878,37 @@ function genStyle(style){
 }
 function keyOf(slots){return [...slots].filter(x=>x!=null).sort((a,b)=>a-b).join("-");}
 
-// 고정 파트너끼리 한 팀 → 페어 vs 페어
+// 지정한 페어는 한 팀 고정, 상대 팀은 나머지 아무 2명(밸런스·3:1금지)
 function genPartner(key){
   const pairs=config.pairs.filter(pr=>byId(pr[0])&&byId(pr[1]));
   const pp=pr=>eff(byId(pr[0]))+eff(byId(pr[1]));
-  const okMatch=(A,B)=>{ // 전력차 1 이하 + 3:1 성별 금지
-    if(Math.abs(pp(A)-pp(B))>1) return false;
-    const m=[A[0],A[1],B[0],B[1]].filter(x=>byId(x).gender==="남").length;
-    return m!==1 && m!==3;
-  };
   const valid=[];
-  for(let i=0;i<pairs.length;i++)for(let j=i+1;j<pairs.length;j++){
-    if(!okMatch(pairs[i],pairs[j])) continue;
-    const slots=[pairs[i][0],pairs[i][1],pairs[j][0],pairs[j][1]];
-    if(isBannedKey(keyOf(slots))) continue;
-    valid.push({slots,diff:Math.abs(pp(pairs[i])-pp(pairs[j])),pi:i,pj:j});
-  }
+  pairs.forEach((P,pi)=>{
+    const pPow=pp(P);
+    const others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id));
+    for(let i=0;i<others.length;i++)for(let j=i+1;j<others.length;j++){
+      const A=others[i],B=others[j], slots=[P[0],P[1],A,B];
+      const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;   // 3:1 금지
+      const diff=Math.abs(pPow-(eff(byId(A))+eff(byId(B)))); if(diff>1) continue;          // 밸런스
+      if(isBannedKey(keyOf(slots))) continue;
+      valid.push({slots,diff,pi,opp:[A,B]});
+    }
+  });
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || a._r-b._r);
-  const CAP=24, chosen=[], seen=new Set(), cnt={}; pairs.forEach((_,i)=>cnt[i]=0);
+  const CAP=24, chosen=[], seen=new Set(), cov=new Set();
   let guard=0;
-  while(chosen.length<Math.min(CAP,valid.length) && guard++<2000){
+  while(chosen.length<CAP && guard++<4000){
     let best=null,bs=1e9;
     for(const g of valid){
       const k=keyOf(g.slots); if(seen.has(k)) continue;
-      const sc=(cnt[g.pi]+cnt[g.pj]) - ((cnt[g.pi]===0?1:0)+(cnt[g.pj]===0?1:0))*50 + g.diff*0.4 + (_played.has(keyOf(g.slots))?500:0);
+      const newCov=g.opp.filter(x=>!cov.has(x)).length;
+      const sc=-newCov*50 + g.diff*0.4 + Math.random()*0.3 + (_played.has(k)?500:0);
       if(sc<bs){bs=sc;best=g;}
     }
     if(!best) break;
-    seen.add(keyOf(best.slots)); chosen.push({id:uid(),slots:best.slots.slice()}); cnt[best.pi]++; cnt[best.pj]++;
+    seen.add(keyOf(best.slots)); chosen.push({id:uid(),slots:best.slots.slice()}); best.opp.forEach(x=>cov.add(x));
+    if(cov.size>=new Set(valid.flatMap(v=>v.opp)).size) break;   // 모든 상대 후보 커버 시 종료
   }
   tabMeta[key]={validCount:valid.length, shown:chosen.length};
   return chosen;
@@ -897,6 +919,7 @@ let tabCache={};   // 끈 탭의 게임을 임시 보관 → 다시 켜면 복�
 const STATIC_OPTS=[
   {id:"hard",type:"hard",label:"빡겜",desc:"실력 비슷 · 밸런스"},
   {id:"fun",type:"fun",label:"즐겜",desc:"급수차 크지만 밸런스"},
+  {id:"avail",type:"avail",label:"가능자 매칭",desc:"지금 게임중이 아닌 사람들로"},
 ];
 // 현재 명단/초청/파트너로 만들 수 있는 탭 옵션 목록(초청선수별 '○○ 전담' 포함)
 function tabOptionList(){
@@ -908,13 +931,36 @@ function tabOptionList(){
 }
 function genForSpec(s){
   _played=playedSet();
+  let r=[];
   switch(s.type){
-    case "coverage": return genCoverage(s.param);
-    case "hard":     return genStyle("hard");
-    case "fun":      return genStyle("fun");
-    case "partner":  return genPartner(s.key);
+    case "coverage": r=genCoverage(s.param); s._mk="cov_"+s.param; break;
+    case "hard":     r=genStyle("hard"); s._mk="hard"; break;
+    case "fun":      r=genStyle("fun"); s._mk="fun"; break;
+    case "avail":    r=genAvail(s.key); s._mk=s.key; break;
+    case "partner":  r=genPartner(s.key); s._mk=s.key; break;
   }
-  return [];
+  s.validCount = (s._mk && tabMeta[s._mk]) ? tabMeta[s._mk].validCount : null;
+  return r;
+}
+// 가능자 매칭: 지금 게임중이 아닌 사람들로 밸런스 게임
+function genAvail(key){
+  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id));
+  const valid=[];
+  combos4(avail).forEach(c=>{ const bp=bestPairing(c,"any"); if(bp && !isBannedKey(keyOf(bp.slots))) valid.push(bp); });
+  valid.forEach(v=>v._r=Math.random());
+  valid.sort((a,b)=> a.diff-b.diff || a._r-b._r);
+  const CAP=24, chosen=[], seen=new Set(), cnt={}; avail.forEach(i=>cnt[i]=0);
+  let guard=0;
+  while(chosen.length<CAP && guard++<4000){
+    let best=null,bs=1e9;
+    for(const g of valid){ const k=keyOf(g.slots); if(seen.has(k)) continue;
+      const sc=g.slots.reduce((s,p)=>s+cnt[p],0) - g.slots.filter(p=>cnt[p]===0).length*50 + g.diff*0.4 + (_played.has(k)?500:0);
+      if(sc<bs){bs=sc;best=g;} }
+    if(!best) break;
+    seen.add(keyOf(best.slots)); chosen.push({id:uid(),slots:best.slots.slice()}); best.slots.forEach(p=>cnt[p]++);
+  }
+  tabMeta[key]={validCount:valid.length, shown:chosen.length};
+  return chosen;
 }
 // config.selected에 맞춰 tabs를 동기화. regen=true면 새로 편성, 아니면 캐시 복원/없으면 생성(수정 보존)
 function rebuildTabs(regen){
@@ -946,7 +992,7 @@ function renderTabsBar(){
   tabSpecs.forEach(s=>{
     const b=document.createElement("button");
     b.className="tab"+(s.key===activeTab?" on":""); b.dataset.t=s.key;
-    b.innerHTML=`<span class="trow"><span class="tt"></span><span class="tcount" data-tc="${s.key}">0/0</span></span><span class="td"></span>`;
+    b.innerHTML=`<span class="trow"><span class="tt"></span></span><span class="td"></span>`;
     b.querySelector(".tt").textContent=s.label;
     b.querySelector(".td").textContent=s.desc;
     bar.appendChild(b);
@@ -974,10 +1020,24 @@ function scrollEnd(){requestAnimationFrame(()=>window.scrollTo({top:document.bod
 
 // 현재 탭에 게임 1개만 추가 (기존 게임 유지)
 function addOneForTab(){
-  const s=specOf(activeTab); if(!s||!s.type) return;
+  const s=specOf(activeTab); if(!s||!s.type){ alert("먼저 탭을 선택하세요. (⚙ 설정 → 생성할 탭)"); return; }
   if(s.type==="coverage") addOneSingle(s.param);
   else if(s.type==="hard"||s.type==="fun") addOneStyle(s.type);
+  else if(s.type==="avail") addOneAvail();
   else if(s.type==="partner") addOnePartner();
+}
+function addOneAvail(){
+  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id));
+  const counts=playCounts(), seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
+  let best=null,bs=1e9;
+  combos4(avail).forEach(c=>{
+    if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
+    const bp=bestPairing(c,"any"); if(!bp) return;
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0);
+    if(sc<bs){bs=sc;best=bp;}
+  });
+  if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
+  else alert("지금 가능한(게임중 아닌) 사람들로 만들 새 밸런스 게임이 없어요.");
 }
 function addOneCoverAll(a1,a2){
   const others=poolIds();
@@ -1022,6 +1082,7 @@ function addOneSingle(sid){
     if(sc<bs){bs=sc;best=bslots;}
   });
   if(best){ games.push({id:uid(),slots:best.slice()}); render(); scrollEnd(); }
+  else alert("이 초청선수로 더 만들 수 있는 새 게임이 없어요.\n(나머지 3명 동성 + 같은 팀 급수차 제한 + 밴/이미 만든 조합 제외)");
 }
 function addOneStyle(style){
   const ids=poolIds();
@@ -1031,27 +1092,31 @@ function addOneStyle(style){
   combos4(ids).forEach(c=>{
     if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,style); if(!bp) return;
-    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3;
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0);
     if(sc<bs){bs=sc;best=bp;}
   });
   if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
+  else alert((style==="hard"?"빡겜":"즐겜")+" 조건으로 더 만들 수 있는 새 게임이 없어요.\n(밸런스/성별 구성 + 밴/이미 만든 조합 제외)");
 }
 function addOnePartner(){
   const pairs=config.pairs.filter(pr=>byId(pr[0])&&byId(pr[1]));
+  if(!pairs.length){ alert("지정된 파트너가 없어요. ⚙ 설정 → 파트너에서 페어를 먼저 추가하세요."); return; }
   const pp=pr=>eff(byId(pr[0]))+eff(byId(pr[1]));
   const seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
-  const cnt={}; pairs.forEach((_,i)=>cnt[i]=0);
-  games.forEach(g=>pairs.forEach((pr,i)=>{ if(pr.every(x=>g.slots.includes(x))) cnt[i]++; }));
   let best=null,bs=1e9;
-  for(let i=0;i<pairs.length;i++)for(let j=i+1;j<pairs.length;j++){
-    const slots=[pairs[i][0],pairs[i][1],pairs[j][0],pairs[j][1]];
-    if(seen.has(keyOf(slots)) || isBannedKey(keyOf(slots))) continue;
-    if(Math.abs(pp(pairs[i])-pp(pairs[j]))>1) continue;                       // 전력차 1 이하
-    const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;  // 3:1 금지
-    const sc=(cnt[i]+cnt[j]) - ((cnt[i]===0?1:0)+(cnt[j]===0?1:0))*50 + Math.abs(pp(pairs[i])-pp(pairs[j]))*0.4 + Math.random()*0.3;
-    if(sc<bs){bs=sc;best=slots;}
-  }
+  pairs.forEach(P=>{
+    const pPow=pp(P), others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id));
+    for(let i=0;i<others.length;i++)for(let j=i+1;j<others.length;j++){
+      const A=others[i],B=others[j], slots=[P[0],P[1],A,B];
+      if(seen.has(keyOf(slots)) || isBannedKey(keyOf(slots))) continue;
+      const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;
+      const diff=Math.abs(pPow-(eff(byId(A))+eff(byId(B)))); if(diff>1) continue;
+      const sc=diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(slots))?500:0);
+      if(sc<bs){bs=sc;best=slots;}
+    }
+  });
   if(best){ games.push({id:uid(),slots:best.slice()}); render(); scrollEnd(); }
+  else alert("더 추가할 파트너전 게임이 없어요.\n(전력차 1 이하 + 성별 3:1 금지 + 밴/이미 만든 조합 제외)");
 }
 
 /* ---------------- analysis ---------------- */
@@ -1198,13 +1263,7 @@ function teamHtml(label,p1,p2,powA,powMax,info,slotIdxBase,busy){
   </div>`;
 }
 
-function updateTabBadges(){
-  tabSpecs.forEach(s=>{
-    const el=document.querySelector(`.tcount[data-tc="${s.key}"]`);
-    const arr=tabs[s.key]||[];
-    if(el){ const act=arr.filter(g=>g.court!=null).length; el.textContent=act?`${act}▶/${arr.length}`:`${arr.length}`; }
-  });
-}
+function updateTabBadges(){}
 
 function renderEmptyRoster(){
   const wrap=document.getElementById("games");
@@ -1241,12 +1300,9 @@ function render(){
     shown++;
 
     const hasS=g.slots.some(id=>id!=null&&isInvited(id));
-    const playing=g.court!=null;
-    const hasBusy=!playing && g.slots.some(s=>s!=null&&busy.has(s));
-    const min=playing?elapsedMin(g.startTime):0;
-    const timeCls=playing?(min>=20?" red-time":(min>=15?" warn-time":"")):"";
+    const hasBusy=g.slots.some(s=>s!=null&&busy.has(s));
     const card=document.createElement("div");
-    card.className="gc"+(info.full&&info.balClass==="bad"?" bad-balance":"")+(playing?" playing"+timeCls:(hasBusy?" blocked":""));
+    card.className="gc"+(info.full&&info.balClass==="bad"?" bad-balance":"")+(hasBusy?" blocked":"");
     card.dataset.gid=g.id;
 
     let flags="";
@@ -1261,12 +1317,9 @@ function render(){
     }
     if(info.dupeIds.length) flags+=`<span class="flag bad"><span class="dot"></span>같은 게임에 중복 인원</span>`;
     if(hasS) flags+=`<span class="flag info"><span class="dot"></span>초청선수 포함</span>`;
-    if(playing) flags=`<span class="flag ok"><span class="dot"></span>진행중</span>`+flags;
 
-    const startBtn = playing
-      ? `<button class="startbtn end" title="게임 종료">종료</button>`
-      : `<button class="startbtn" ${(!info.full||hasBusy)?"disabled":""} title="게임 시작(코트 배정)">시작</button>`;
-    const timerHtml = playing?`<span class="gc-timer" data-start="${g.startTime}">${min}분</span>`:"";
+    const startBtn = `<button class="startbtn" ${(!info.full||hasBusy)?"disabled":""} title="게임 시작(코트 배정)">시작</button>`;
+    const timerHtml = "";
 
     card.innerHTML=`
       <div class="gc-top">
@@ -1292,12 +1345,11 @@ function render(){
         render();
       });
     });
-    card.querySelector(".startbtn").addEventListener("click",()=>{ if(playing) endGame(g.id); else startGame(g); });
+    card.querySelector(".startbtn").addEventListener("click",()=>startGame(g));
     const bb=card.querySelector(".banbtn"); if(bb) bb.addEventListener("click",()=>banGame(g));
     card.querySelector(".gx").addEventListener("click",()=>{
       const ix=games.findIndex(x=>x.id===g.id); if(ix>=0) games.splice(ix,1); render();
     });
-    wireDrag(card, g);
     wrap.appendChild(card);
   });
 
@@ -1315,10 +1367,9 @@ function render(){
   document.getElementById("stWarn").textContent=warnCount;
   updateTabBadges();
   const spec=specOf(activeTab);
+  const vc = (spec.validCount!=null)?spec.validCount:(tabMeta[activeTab]?tabMeta[activeTab].validCount:null);
   let sub=spec.desc||"";
-  const tm=tabMeta[activeTab];
-  if(tm && tm.validCount!=null)
-    sub+=` · 유효 조합 ${tm.validCount}개 중 ${games.length}개 편성`;
+  if(vc!=null) sub=`${spec.desc||""} · 유효 조합 ${vc}개 중 ${games.length}개 편성`;
   else if(games.length) sub=`${games.length}게임 · ${spec.desc||""}`;
   const ms=document.getElementById("mainSub"); if(ms) ms.textContent=sub;
 
@@ -1362,6 +1413,7 @@ function renderSide(){
   ros.innerHTML="";
   const sorted=[...PLAYERS].sort((a,b)=>
     (isInvited(b.id)?1:0)-(isInvited(a.id)?1:0) || GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || eff(b)-eff(a) || a.name.localeCompare(b.name,"ko"));
+  const busy=busyIdSet();
   sorted.forEach(p=>{
     const c=counts[p.id];
     const row=document.createElement("div");
@@ -1369,6 +1421,7 @@ function renderSide(){
     row.dataset.pid=p.id; row.style.cursor="pointer"; row.title="클릭하면 이 사람의 경기 기록 보기";
     const grpTag=teamLogoImg(p);
     row.innerHTML=`
+      ${busy.has(p.id)?'<span class="busy-dot" title="게임중"></span>':''}
       ${gradeBadge(p)}
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
@@ -1398,7 +1451,7 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[] };
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[] };
     config.courts.forEach(c=>{ const n=parseInt(String(c.id).replace("ct",""))||0; if(n>=_cuid) _cuid=n+1; });
   } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
@@ -1804,6 +1857,7 @@ document.getElementById("banList").addEventListener("click",e=>{ const b=e.targe
 // 코트 바
 document.getElementById("courtbarInner").addEventListener("click",e=>{
   if(e.target.closest("[data-courtedit]")) return openCourtEdit();
+  const cancel=e.target.closest("[data-cancel]"); if(cancel) return cancelGame(cancel.dataset.cancel);
   const end=e.target.closest("[data-end]"); if(end) return endGame(end.dataset.end);
 });
 document.getElementById("cpCancel").addEventListener("click",closeCourtPicker);
@@ -1814,21 +1868,37 @@ document.getElementById("ceList").addEventListener("input",e=>{ const inp=e.targ
 document.getElementById("ceOk").addEventListener("click",applyCourtEdit);
 document.getElementById("ceCancel").addEventListener("click",closeCourtEdit);
 document.getElementById("courtEdit").addEventListener("click",e=>{ if(e.target.id==="courtEdit") closeCourtEdit(); });
-// 순서 드래그 (게임 컨테이너)
-(function(){ const gel=document.getElementById("games");
-  gel.addEventListener("dragover",e=>{ if(_dragId!=null) e.preventDefault(); });
-  gel.addEventListener("drop",e=>{
-    if(_dragId==null) return; e.preventDefault();
-    const fromIdx=games.findIndex(x=>x.id===_dragId); if(fromIdx<0) return;
-    const after=e.target.closest(".gc");
-    const [moved]=games.splice(fromIdx,1);
-    if(after && after.dataset.gid && +after.dataset.gid!==_dragId){
-      let toIdx=games.findIndex(x=>x.id===+after.dataset.gid);
-      const r=after.getBoundingClientRect(); if(e.clientY>r.top+r.height/2) toIdx++;
-      games.splice(Math.max(0,toIdx),0,moved);
-    } else games.push(moved);
-    render();
+// 순서 드래그: VS 라인을 잡고 이동 (모바일은 길게 누르기) — VS가 핸들
+(function(){
+  const gel=document.getElementById("games");
+  let dragEl=null, armed=false, holdT=null, startX=0, startY=0;
+  function clearHold(){ if(holdT){ clearTimeout(holdT); holdT=null; } }
+  function arm(){ armed=true; if(dragEl) dragEl.classList.add("dragmode"); }
+  function rebuild(){ const order=[...gel.querySelectorAll(".gc")].map(el=>+el.dataset.gid); games.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id)); }
+  gel.addEventListener("pointerdown",e=>{
+    const vs=e.target.closest(".vs"); if(!vs) return;
+    dragEl=vs.closest(".gc"); if(!dragEl){ return; }
+    startX=e.clientX; startY=e.clientY; armed=false;
+    if(e.pointerType==="touch"){ holdT=setTimeout(arm,220); }   // 모바일: 길게 누르면 드래그
+    else arm();
+    try{ vs.setPointerCapture(e.pointerId); }catch(_){}
   });
+  gel.addEventListener("pointermove",e=>{
+    if(!dragEl) return;
+    if(!armed){ if(Math.hypot(e.clientX-startX,e.clientY-startY)>10){ clearHold(); dragEl=null; } return; }
+    e.preventDefault();
+    dragEl.style.pointerEvents="none";
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    dragEl.style.pointerEvents="";
+    const tcard=under&&under.closest(".gc");
+    if(tcard && tcard!==dragEl && tcard.parentElement===gel){
+      const r=tcard.getBoundingClientRect();
+      gel.insertBefore(dragEl, (e.clientY<r.top+r.height/2)?tcard:tcard.nextSibling);
+    }
+  });
+  function endDrag(){ clearHold(); if(dragEl&&armed){ dragEl.classList.remove("dragmode"); rebuild(); render(); } dragEl=null; armed=false; }
+  gel.addEventListener("pointerup",endDrag);
+  gel.addEventListener("pointercancel",endDrag);
 })();
 document.getElementById("hsClose").addEventListener("click",closeHistoryModal);
 document.getElementById("hsDone").addEventListener("click",closeHistoryModal);
