@@ -28,9 +28,53 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 /* ---------- top bar ---------- */
 .topbar{
-  position:sticky;top:0;z-index:50;background:var(--court);color:#fff;
+  position:relative;z-index:50;background:var(--court);color:#fff;
   border-bottom:3px solid var(--lime);
 }
+/* ---------- 코트 바 (스크롤해도 고정) ---------- */
+.courtbar{position:sticky;top:0;z-index:48;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(20,40,30,.06)}
+.courtbar-inner{max-width:1480px;margin:0 auto;padding:10px 22px;display:flex;align-items:stretch;gap:10px;overflow-x:auto}
+.courtbar-title{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;flex:none;padding-right:4px}
+.court{flex:none;min-width:150px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;background:#fafbf9}
+.court.busy{border-color:var(--court);background:#f1f8f3}
+.court.busy.warn{border-color:var(--warn);background:var(--warnbg)}
+.court.busy.red{border-color:var(--bad);background:var(--badbg)}
+.court-top{display:flex;align-items:center;gap:6px}
+.court-no{font-family:"Space Grotesk";font-weight:700;font-size:14px;color:var(--court-d)}
+.court-numinp{width:46px;font-family:"Space Grotesk";font-weight:700;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:7px;padding:3px}
+.court-del{margin-left:auto;border:none;background:var(--badbg);color:var(--bad);border-radius:6px;width:20px;height:20px;font-size:10px;cursor:pointer;padding:0}
+.court-status{font-size:11.5px;color:var(--muted)}
+.court-names{font-size:11.5px;line-height:1.45;color:var(--ink)}
+.court-timer{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:var(--court)}
+.court.warn .court-timer{color:var(--warn)} .court.red .court-timer{color:var(--bad)}
+.court-end{border:none;background:var(--court);color:#fff;border-radius:8px;padding:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.court-end:hover{background:var(--court-d)}
+.court-add{flex:none;min-width:90px;border:1.5px dashed var(--line);border-radius:12px;background:#fff;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
+.court-add:hover{border-color:var(--court);color:var(--court)}
+.cp-bg{position:fixed;inset:0;z-index:210;background:rgba(20,40,30,.4);display:flex;align-items:center;justify-content:center}
+.cp-box{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;min-width:240px}
+.cp-title{font-size:14px;font-weight:700;margin-bottom:12px}
+.cp-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cp-btn{font-family:inherit;font-size:15px;font-weight:700;border:1.5px solid var(--court);background:#fff;color:var(--court);border-radius:10px;padding:10px 16px;cursor:pointer;min-width:54px}
+.cp-btn:hover{background:var(--court);color:#fff}
+/* 진행중 카드 페이드 / 시간경고 / 게임중인 사람 회색 */
+.gc.blocked{opacity:.5}
+.gc.playing{box-shadow:0 0 0 2px var(--court) inset}
+.gc.playing.warn-time{box-shadow:0 0 0 2px var(--warn) inset}
+.gc.playing.red-time{box-shadow:0 0 0 2px var(--bad) inset}
+.slot select.busy{background-color:#e6e6e6 !important;color:#999}
+.startbtn{margin-left:6px;font-family:inherit;font-size:12px;font-weight:600;color:#fff;background:var(--court);cursor:pointer;padding:5px 16px;border-radius:99px;border:1px solid var(--court);min-width:56px}
+.startbtn:hover:not(:disabled){background:var(--court-d)}
+.startbtn:disabled{opacity:.4;cursor:not-allowed}
+.startbtn.end{background:var(--bad);border-color:var(--bad)}
+.startbtn.end:hover{background:#b23030}
+.gc-timer{font-family:"Space Grotesk";font-weight:700;font-size:12px;color:var(--court);margin-left:6px}
+.gc.warn-time .gc-timer{color:var(--warn)} .gc.red-time .gc-timer{color:var(--bad)}
+.gc .vs{cursor:pointer}
+.gc.dragmode{transform:scale(1.04);box-shadow:0 10px 28px rgba(0,0,0,.2);cursor:grab;position:relative;z-index:5}
+.gc.dragging{opacity:.45}
+.hs-tag{font-size:11px;font-weight:700;color:#fff;border-radius:99px;padding:2px 9px}
+.hs-tag.남복{background:#3E7BFA}.hs-tag.여복{background:#E5499B}.hs-tag.혼복{background:#8B5CF6}.hs-tag.초청{background:var(--court)}
 .topbar-inner{max-width:1480px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .brand{display:flex;align-items:baseline;gap:10px}
 .brand .logo{font-family:"Space Grotesk";font-weight:700;font-size:20px;letter-spacing:.12em}
@@ -310,6 +354,18 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
   </div>
 </div>
 
+<div class="courtbar" id="courtbar">
+  <div class="courtbar-inner" id="courtbarInner"></div>
+</div>
+
+<div class="cp-bg" id="courtPicker" style="display:none">
+  <div class="cp-box">
+    <div class="cp-title">코트를 선택해주세요</div>
+    <div class="cp-list" id="cpList"></div>
+    <button class="btn btn-soft" id="cpCancel" style="margin-top:12px">취소</button>
+  </div>
+</div>
+
 <div class="layout">
   <!-- SIDEBAR -->
   <aside class="side">
@@ -484,8 +540,96 @@ function eName(id,fb){ const p=id!=null?byId(id):null; return p?p.name:(fb||"선
 /* ---------- 설정: 초청선수 · 파트너 · 생성할 탭 ---------- */
 const DEFAULT_SELECTED={hard:true,fun:true,partner:false};
 const MAX_TEAMS=6;
-let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[] };
+let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[] };
 function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
+function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
+let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
+// 진행중 게임(코트 배정됨) / 코트 점유 / 게임중인 사람
+function activeGames(){ return Object.values(tabs).flat().filter(g=>g.court!=null); }
+function activeGameOnCourt(cid){ return activeGames().find(g=>g.court===cid); }
+function busyIdSet(){ const s=new Set(); activeGames().forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); return s; }
+function emptyCourts(){ const occ=new Set(activeGames().map(g=>g.court)); return config.courts.filter(c=>!occ.has(c.id)); }
+let _cuid=1; const courtId=()=>"ct"+(_cuid++);
+
+/* ---------------- 코트 운영 ---------------- */
+function elapsedMin(start){ return Math.floor((Date.now()-start)/60000); }
+function renderCourts(){
+  const wrap=document.getElementById("courtbarInner"); if(!wrap) return;
+  wrap.innerHTML=`<div class="courtbar-title">코트</div>`;
+  config.courts.forEach(ct=>{
+    const g=activeGameOnCourt(ct.id);
+    const el=document.createElement("div");
+    if(g){
+      const min=elapsedMin(g.startTime), cls=min>=20?"red":(min>=15?"warn":"");
+      el.className="court busy "+cls;
+      const nm=i=>g.slots[i]!=null?esc(byId(g.slots[i]).name):"—";
+      el.innerHTML=`<div class="court-top"><span class="court-no">${esc(String(ct.num))}번</span><span class="court-timer" data-start="${g.startTime}">${min}분</span></div>`+
+        `<div class="court-names">${nm(0)}·${nm(1)} vs ${nm(2)}·${nm(3)}</div>`+
+        `<button class="court-end" data-end="${g.id}">종료</button>`;
+    } else {
+      el.className="court empty";
+      el.innerHTML=`<div class="court-top"><input class="court-numinp" data-cnum="${ct.id}" value="${esc(String(ct.num))}">번`+
+        `${config.courts.length>2?`<button class="court-del" data-cdel="${ct.id}" title="코트 삭제">✕</button>`:""}</div>`+
+        `<div class="court-status">비어있음</div>`;
+    }
+    wrap.appendChild(el);
+  });
+  if(config.courts.length<6){ const b=document.createElement("button"); b.className="court-add"; b.dataset.addcourt="1"; b.textContent="＋ 코트"; wrap.appendChild(b); }
+}
+function addCourt(){
+  if(config.courts.length>=6){ alert("코트는 최대 6개예요."); return; }
+  const used=new Set(config.courts.map(c=>c.num)); let n=1; while(used.has(n)) n++;
+  config.courts.push({id:courtId(), num:n}); renderCourts(); persist();
+}
+function delCourt(cid){ if(config.courts.length<=2){ alert("코트는 최소 2개예요."); return; } config.courts=config.courts.filter(c=>c.id!==cid); renderCourts(); persist(); }
+function setCourtNum(cid,val){
+  const n=parseInt(val), ct=config.courts.find(c=>c.id===cid); if(!ct) return;
+  if(!n||n<1){ renderCourts(); return; }
+  if(config.courts.some(c=>c.id!==cid && c.num===n)){ alert("이미 있는 코트 번호예요."); renderCourts(); return; }
+  ct.num=n; renderCourts(); persist();
+}
+function startGame(g){
+  if(g.slots.some(x=>x==null)){ alert("인원 4명을 채워주세요."); return; }
+  if(g.slots.some(x=>busyIdSet().has(x))){ alert("이 게임에 다른 코트에서 게임중인 사람이 있어요."); return; }
+  if(!config.courts.length){ alert("먼저 위에서 코트를 추가하세요."); return; }
+  const empties=emptyCourts(); if(!empties.length){ alert("비어있는 코트가 없어요."); return; }
+  const pop=document.getElementById("courtPicker"), list=pop.querySelector("#cpList");
+  list.innerHTML="";
+  empties.forEach(c=>{ const b=document.createElement("button"); b.className="cp-btn"; b.textContent=c.num+"번"; b.onclick=()=>{ assignCourt(g,c.id); closeCourtPicker(); }; list.appendChild(b); });
+  pop.style.display="flex";
+}
+function closeCourtPicker(){ const p=document.getElementById("courtPicker"); if(p) p.style.display="none"; }
+function assignCourt(g,cid){ g.court=cid; g.startTime=Date.now(); g.startTab=specOf(activeTab).label||""; renderCourts(); render(); persist(); }
+function endGame(gid){
+  const g=activeGames().find(x=>x.id===gid); if(!g) return;
+  const info=analyzeGame(g), inv=g.slots.some(x=>x!=null&&isInvited(x)), fk=foursomeKey(g);
+  config.completed.push({key:fk, slots:g.slots.slice(), players:g.slots.map(s=>pInfo(s)), type:info.type, tab:g.startTab||"", inv, startTime:g.startTime, endTime:Date.now()});
+  Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
+  Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
+  games=tabs[activeTab]||[];
+  renderCourts(); render(); persist();
+}
+function updateCourtTimers(){
+  if(!activeGames().length) return;
+  document.querySelectorAll("[data-start]").forEach(el=>{
+    const min=elapsedMin(+el.dataset.start); el.textContent=min+"분";
+    const court=el.closest(".court"); if(court){ court.classList.toggle("warn",min>=15&&min<20); court.classList.toggle("red",min>=20); }
+    const card=el.closest(".gc"); if(card){ card.classList.toggle("warn-time",min>=15&&min<20); card.classList.toggle("red-time",min>=20); }
+  });
+}
+setInterval(updateCourtTimers, 10000);
+
+/* ---------------- 순서 드래그 (VS 클릭 → 확대 → 이동) ---------------- */
+let _dragId=null;
+function wireDrag(card, g){
+  const vs=card.querySelector(".vs"); if(!vs) return;
+  vs.addEventListener("click",()=>{
+    const on=card.classList.toggle("dragmode");
+    card.draggable=on;
+  });
+  card.addEventListener("dragstart",e=>{ _dragId=g.id; card.classList.add("dragging"); try{e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text","x");}catch(_){} });
+  card.addEventListener("dragend",()=>{ card.classList.remove("dragging","dragmode"); card.draggable=false; _dragId=null; });
+}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function teamNames(){ return config.teams.map(t=>t.name); }
 function teamObj(name){ return config.teams.find(t=>t.name===name); }
@@ -579,7 +723,7 @@ function genCoverage(sid){
       const bk=keyOf(bslots);
       if(seen.has(bk) || isBannedKey(bk)) continue;     // 이미 쓴 조합/밴 제외
       const newCov=t.filter(x=>!covered.has(x)).length;
-      const score=newCov*100 - bd*4 + Math.random()*0.6;   // 커버 우선 + 밸런스
+      const score=newCov*100 - bd*4 + Math.random()*0.6 - (_played.has(bk)?500:0);   // 커버 우선 + 밸런스 - 이미한조합 패널티
       if(score>bs){bs=score; best={slots:bslots,t}; bestCov=newCov;}
     }
     if(!best || bestCov===0) break;   // 더 커버할 사람 없으면 종료(스팸 방지)
@@ -653,7 +797,7 @@ function genStyle(style){
     let best=null,bs=1e9;
     for(const g of valid){
       const k=keyOf(g.slots); if(seen.has(k)) continue;
-      const sc=g.slots.reduce((s,p)=>s+cnt[p],0) - g.slots.filter(p=>cnt[p]===0).length*50 + g.diff*0.4;
+      const sc=g.slots.reduce((s,p)=>s+cnt[p],0) - g.slots.filter(p=>cnt[p]===0).length*50 + g.diff*0.4 + (_played.has(keyOf(g.slots))?500:0);
       if(sc<bs){bs=sc;best=g;}
     }
     if(!best) break;
@@ -703,7 +847,7 @@ function genGender(key,want){
     let best=null,bs=1e9;
     for(const g of valid){
       const k=keyOf(g.slots); if(seen.has(k)) continue;
-      const sc=g.slots.reduce((s,p)=>s+cnt[p],0) - g.slots.filter(p=>cnt[p]===0).length*50 + g.diff*0.4;
+      const sc=g.slots.reduce((s,p)=>s+cnt[p],0) - g.slots.filter(p=>cnt[p]===0).length*50 + g.diff*0.4 + (_played.has(keyOf(g.slots))?500:0);
       if(sc<bs){bs=sc;best=g;}
     }
     if(!best) break;
@@ -737,7 +881,7 @@ function genPartner(key){
     let best=null,bs=1e9;
     for(const g of valid){
       const k=keyOf(g.slots); if(seen.has(k)) continue;
-      const sc=(cnt[g.pi]+cnt[g.pj]) - ((cnt[g.pi]===0?1:0)+(cnt[g.pj]===0?1:0))*50 + g.diff*0.4;
+      const sc=(cnt[g.pi]+cnt[g.pj]) - ((cnt[g.pi]===0?1:0)+(cnt[g.pj]===0?1:0))*50 + g.diff*0.4 + (_played.has(keyOf(g.slots))?500:0);
       if(sc<bs){bs=sc;best=g;}
     }
     if(!best) break;
@@ -762,6 +906,7 @@ function tabOptionList(){
   return opts;
 }
 function genForSpec(s){
+  _played=playedSet();
   switch(s.type){
     case "coverage": return genCoverage(s.param);
     case "hard":     return genStyle("hard");
@@ -972,7 +1117,7 @@ function playCounts(){
 }
 function doneCounts(){
   const c={}; PLAYERS.forEach(p=>c[p.id]=0);
-  Object.values(tabs).forEach(arr=>arr.forEach(g=>{ if(g.done) g.slots.forEach(s=>{if(s!=null)c[s]++;}); }));
+  (config.completed||[]).forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
   return c;
 }
 function sCoverage(){
@@ -1053,11 +1198,11 @@ function computeDupes(){
   Object.keys(seen).forEach(k=>{if(seen[k]>=2)foursomeDup.add(k);});
 }
 
-function teamHtml(label,p1,p2,powA,powMax,info,slotIdxBase,dis){
+function teamHtml(label,p1,p2,powA,powMax,info,slotIdxBase,busy){
   const dupSet=new Set(info.dupeIds);
   const slot=(p,idx)=>`
     <div class="slot">
-      <select ${dis||""} data-game="" data-slot="${idx}" class="${p==null?"empty":(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"))} ${p&&dupSet.has(p.id)?"dupe":""}">
+      <select data-game="" data-slot="${idx}" class="${p==null?"empty":(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"))} ${p&&busy&&busy.has(p.id)?"busy":""} ${p&&dupSet.has(p.id)?"dupe":""}">
         ${optionList(p?p.id:null)}
       </select>
     </div>`;
@@ -1073,7 +1218,7 @@ function updateTabBadges(){
   tabSpecs.forEach(s=>{
     const el=document.querySelector(`.tcount[data-tc="${s.key}"]`);
     const arr=tabs[s.key]||[];
-    if(el){ const done=arr.filter(g=>g.done).length; el.textContent=`${done}/${arr.length}`; }
+    if(el){ const act=arr.filter(g=>g.court!=null).length; el.textContent=act?`${act}▶/${arr.length}`:`${arr.length}`; }
   });
 }
 
@@ -1097,26 +1242,29 @@ function render(){
   computeDupes();
   const wrap=document.getElementById("games");
   wrap.innerHTML="";
-  let balOk=0, warnCount=0, shown=0, doneCount=0;
-
-  const display=[...games].sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+  let balOk=0, warnCount=0, shown=0;
+  const busy=busyIdSet();
+  const display=[...games];
   display.forEach((g,gi)=>{
     const info=analyzeGame(g);
-    if(g.done) doneCount++;
     if(info.full && info.balClass==="ok") balOk++;
     const hasDup=foursomeDup.has(foursomeKey(g));
     const mixBad=info.type==="혼복"&&mixWarn(info);
     const isWarn=info.full&&(info.balClass!=="ok"||info.dupeIds.length||hasDup||mixBad);
-    if(isWarn && !g.done) warnCount++;
+    if(isWarn) warnCount++;
 
     if(!gameMatchesFilter(g,info)) return;
     shown++;
 
     const hasS=g.slots.some(id=>id!=null&&isInvited(id));
+    const playing=g.court!=null;
+    const hasBusy=!playing && g.slots.some(s=>s!=null&&busy.has(s));
+    const min=playing?elapsedMin(g.startTime):0;
+    const timeCls=playing?(min>=20?" red-time":(min>=15?" warn-time":"")):"";
     const card=document.createElement("div");
-    card.className="gc"+(info.full&&info.balClass==="bad"&&!g.done?" bad-balance":"")+(g.done?" done":"");
+    card.className="gc"+(info.full&&info.balClass==="bad"?" bad-balance":"")+(playing?" playing"+timeCls:(hasBusy?" blocked":""));
+    card.dataset.gid=g.id;
 
-    // foot flags
     let flags="";
     if(info.full){
       flags+=`<span class="flag ${info.balClass}"><span class="dot"></span>${info.balTxt} (차이 ${info.balDiff})</span>`;
@@ -1129,25 +1277,29 @@ function render(){
     }
     if(info.dupeIds.length) flags+=`<span class="flag bad"><span class="dot"></span>같은 게임에 중복 인원</span>`;
     if(hasS) flags+=`<span class="flag info"><span class="dot"></span>초청선수 포함</span>`;
-    if(g.done) flags=`<span class="flag ok"><span class="dot"></span>완료된 게임</span>`+flags;
+    if(playing) flags=`<span class="flag ok"><span class="dot"></span>진행중</span>`+flags;
 
-    const dis=g.done?"disabled":"";
+    const startBtn = playing
+      ? `<button class="startbtn end" title="게임 종료">종료</button>`
+      : `<button class="startbtn" ${(!info.full||hasBusy)?"disabled":""} title="게임 시작(코트 배정)">시작</button>`;
+    const timerHtml = playing?`<span class="gc-timer" data-start="${g.startTime}">${min}분</span>`:"";
+
     card.innerHTML=`
       <div class="gc-top">
         <span class="typebadge t-${info.type}">${info.type}</span>
         ${info.nature?`<span class="naturetag nature-${info.nature}">${info.nature==="비슷"?"실력 비슷":"차이 크지만 밸런스"}</span>`:""}
+        ${timerHtml}
         <button class="banbtn" ${info.full?"":"disabled"} title="이 조합 다시 만들지 않기(밴)">밴</button>
-        <button class="donebtn ${g.done?"on":""}" title="이 게임 완료 표시">완료</button>
+        ${startBtn}
         <button class="gx" title="이 게임 삭제">✕</button>
       </div>
       <div class="gc-body">
-        ${teamHtml("TEAM A",info.a1,info.a2,info.powA,16,info,0,dis)}
-        <div class="vs"><span class="b num">VS</span></div>
-        ${teamHtml("TEAM B",info.b1,info.b2,info.powB,16,info,2,dis)}
+        ${teamHtml("TEAM A",info.a1,info.a2,info.powA,16,info,0,busy)}
+        <div class="vs" title="눌러서 순서 이동"><span class="b num">VS</span></div>
+        ${teamHtml("TEAM B",info.b1,info.b2,info.powB,16,info,2,busy)}
       </div>
       <div class="gc-foot">${flags}</div>
     `;
-    // wire selects
     card.querySelectorAll("select").forEach(sel=>{
       sel.addEventListener("change",e=>{
         const idx=+e.target.dataset.slot;
@@ -1156,16 +1308,12 @@ function render(){
         render();
       });
     });
-    card.querySelector(".donebtn").addEventListener("click",()=>{
-      g.done=!g.done;
-      if(g.done){ if(!g.doneAt) g.doneAt=++config.doneSeq; g.doneTime=Date.now(); g.doneTab=specOf(activeTab).label||""; }
-      else { g.doneAt=0; g.doneTime=0; }
-      syncDone(g); render();
-    });
+    card.querySelector(".startbtn").addEventListener("click",()=>{ if(playing) endGame(g.id); else startGame(g); });
     const bb=card.querySelector(".banbtn"); if(bb) bb.addEventListener("click",()=>banGame(g));
     card.querySelector(".gx").addEventListener("click",()=>{
       const ix=games.findIndex(x=>x.id===g.id); if(ix>=0) games.splice(ix,1); render();
     });
+    wireDrag(card, g);
     wrap.appendChild(card);
   });
 
@@ -1178,8 +1326,7 @@ function render(){
   }
 
   document.getElementById("stGames").textContent=games.length;
-  const totalDone=Object.values(tabs).reduce((s,arr)=>s+arr.filter(g=>g.done).length,0);
-  document.getElementById("stDone").textContent=totalDone;
+  document.getElementById("stDone").textContent=(config.completed||[]).length;
   document.getElementById("stBal").textContent=balOk;
   document.getElementById("stWarn").textContent=warnCount;
   updateTabBadges();
@@ -1267,11 +1414,12 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[] };
-  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; }
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[] };
+    config.courts.forEach(c=>{ const n=parseInt(String(c.id).replace("ct",""))||0; if(n>=_cuid) _cuid=n+1; });
+  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
   tabs={};
-  Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),done:!!g.done})):[]; });
+  Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),court:g.court!=null?g.court:null,startTime:g.startTime||0,startTab:g.startTab||""})):[]; });
   activeTab=(obj.activeTab && tabs[obj.activeTab])?obj.activeTab:(tabSpecs[0]&&tabSpecs[0].key)||null;
   fixUid(); renderTabsBar(); return true;
 }
@@ -1292,8 +1440,8 @@ function resetAll(){
   if(!confirm("모든 데이터(명단·설정·편성·팀 로고)를 완전히 삭제하고 처음 상태로 되돌립니다. 진행할까요?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
-  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[] };
-  renderTabsBar(); renderConfig(); render(); renderBans();
+  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[] };
+  renderTabsBar(); renderConfig(); render(); renderBans(); renderCourts();
 }
 
 /* ---------------- roster import (Excel/CSV) ---------------- */
@@ -1524,24 +1672,17 @@ function openPlayerModal(pid){
   const p=byId(pid); if(!p) return;
   document.getElementById("pmTitle").textContent=`${p.name} 경기 기록`;
   const body=document.getElementById("pmBody"); body.innerHTML="";
-  let total=0;
-  const nm=id=>{ const q=id!=null?byId(id):null; const t=q?esc(q.name):"—"; return id===pid?`<span class="pm-me">${t}</span>`:t; };
-  tabSpecs.forEach(spec=>{
-    const arr=(tabs[spec.key]||[]).filter(g=>g.done && g.slots.includes(pid));
-    if(!arr.length) return;
-    const h=document.createElement("div"); h.className="pm-tab"; h.textContent=`${spec.label} · ${arr.length}게임`; body.appendChild(h);
-    arr.forEach((g,i)=>{
-      total++;
-      const row=document.createElement("div"); row.className="pm-game"+(g.done?" done":"");
-      row.innerHTML=`<span class="pm-no">${i+1}</span>`+
-        `<span class="pm-team">${nm(g.slots[0])} · ${nm(g.slots[1])}</span>`+
-        `<span class="pm-vs">vs</span>`+
-        `<span class="pm-team">${nm(g.slots[2])} · ${nm(g.slots[3])}</span>`+
-        (g.done?`<span class="flag ok" style="margin-left:auto"><span class="dot"></span>완료</span>`:"");
-      body.appendChild(row);
-    });
+  const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
+  const mine=(config.completed||[]).filter(r=>Array.isArray(r.slots)&&r.slots.includes(pid)).sort((a,b)=>(a.endTime||0)-(b.endTime||0));
+  if(!mine.length){ body.innerHTML=`<div class="pm-empty">완료한 경기가 없습니다. 카드에서 게임을 시작·종료하면 여기에 쌓여요.</div>`; document.getElementById("playerModal").style.display="flex"; return; }
+  mine.forEach((r,i)=>{
+    const tagL=r.inv?"초청":(r.type||"게임"), tagC=r.inv?"초청":(r.type||"");
+    const pl=(r.slots||[]).map((s,idx)=>{ const t=esc((r.players&&r.players[idx])||"—"); return s===pid?`<span class="pm-me">${t}</span>`:t; });
+    const row=document.createElement("div"); row.className="hs-row";
+    row.innerHTML=`<div class="hs-head"><span class="pm-no">${i+1}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time">${fmt(r.startTime)} ~ ${fmt(r.endTime)}</span></div>`+
+      `<div class="hs-players">${pl[0]} · ${pl[1]} <b>vs</b> ${pl[2]} · ${pl[3]}</div>`;
+    body.appendChild(row);
   });
-  if(!total) body.innerHTML=`<div class="pm-empty">완료한 경기가 없습니다. 카드의 '완료'를 누르면 여기에 쌓여요.</div>`;
   document.getElementById("playerModal").style.display="flex";
 }
 function closePlayerModal(){ document.getElementById("playerModal").style.display="none"; }
@@ -1549,20 +1690,17 @@ function closePlayerModal(){ document.getElementById("playerModal").style.displa
 /* ---------------- 게임 내역(완료 순서) 모달 ---------------- */
 function openHistoryModal(){
   const body=document.getElementById("hsBody"); body.innerHTML="";
-  const seen=new Set(), items=[];
-  [...Object.values(tabs).flat(), ...Object.values(tabCache).flat()].forEach(g=>{
-    if(!g.done) return; const fk=foursomeKey(g); if(!fk||seen.has(fk)) return; seen.add(fk); items.push(g);
-  });
-  items.sort((a,b)=>((a.doneTime||a.doneAt||0)-(b.doneTime||b.doneAt||0)));
-  if(!items.length){ body.innerHTML=`<div class="pm-empty">아직 완료한 게임이 없습니다. 카드의 '완료'를 누르면 여기에 순서대로 쌓여요.</div>`; document.getElementById("historyModal").style.display="flex"; return; }
+  const items=(config.completed||[]).slice().sort((a,b)=>(a.endTime||0)-(b.endTime||0));
+  if(!items.length){ body.innerHTML=`<div class="pm-empty">완료된 게임이 없습니다. 카드에서 게임을 <b>시작</b>하고 <b>종료</b>하면 여기에 쌓여요.</div>`; document.getElementById("historyModal").style.display="flex"; return; }
   const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
-  items.forEach((g,i)=>{
-    const start=i>0?(items[i-1].doneTime||0):0, end=g.doneTime||0;
+  items.forEach((r,i)=>{
+    const tagL=r.inv?"초청":(r.type||"게임"), tagC=r.inv?"초청":(r.type||"");
+    const pl=r.players||["—","—","—","—"];
     const row=document.createElement("div"); row.className="hs-row";
     row.innerHTML=`<div class="hs-head"><span class="pm-no">${i+1}</span>`+
-      `<span class="hs-tab">${esc(g.doneTab||"게임")}</span>`+
-      `<span class="hs-time">${fmt(start)} ~ ${fmt(end)}</span></div>`+
-      `<div class="hs-players">${pInfo(g.slots[0])} · ${pInfo(g.slots[1])} <b>vs</b> ${pInfo(g.slots[2])} · ${pInfo(g.slots[3])}</div>`;
+      `<span class="hs-tag ${tagC}">${esc(tagL)}</span>`+
+      `<span class="hs-time">${fmt(r.startTime)} ~ ${fmt(r.endTime)}</span></div>`+
+      `<div class="hs-players">${esc(pl[0])} · ${esc(pl[1])} <b>vs</b> ${esc(pl[2])} · ${esc(pl[3])}</div>`;
     body.appendChild(row);
   });
   document.getElementById("historyModal").style.display="flex";
@@ -1659,6 +1797,31 @@ document.getElementById("pmDone").addEventListener("click",closePlayerModal);
 document.getElementById("playerModal").addEventListener("click",e=>{ if(e.target.id==="playerModal") closePlayerModal(); });
 document.getElementById("btnHistory").addEventListener("click",openHistoryModal);
 document.getElementById("banList").addEventListener("click",e=>{ const b=e.target.closest("[data-unban]"); if(b) unban(b.dataset.unban); });
+// 코트 바
+document.getElementById("courtbarInner").addEventListener("click",e=>{
+  if(e.target.closest("[data-addcourt]")) return addCourt();
+  const del=e.target.closest("[data-cdel]"); if(del) return delCourt(del.dataset.cdel);
+  const end=e.target.closest("[data-end]"); if(end) return endGame(end.dataset.end);
+});
+document.getElementById("courtbarInner").addEventListener("change",e=>{ const inp=e.target.closest("[data-cnum]"); if(inp) setCourtNum(inp.dataset.cnum, inp.value); });
+document.getElementById("cpCancel").addEventListener("click",closeCourtPicker);
+document.getElementById("courtPicker").addEventListener("click",e=>{ if(e.target.id==="courtPicker") closeCourtPicker(); });
+// 순서 드래그 (게임 컨테이너)
+(function(){ const gel=document.getElementById("games");
+  gel.addEventListener("dragover",e=>{ if(_dragId!=null) e.preventDefault(); });
+  gel.addEventListener("drop",e=>{
+    if(_dragId==null) return; e.preventDefault();
+    const fromIdx=games.findIndex(x=>x.id===_dragId); if(fromIdx<0) return;
+    const after=e.target.closest(".gc");
+    const [moved]=games.splice(fromIdx,1);
+    if(after && after.dataset.gid && +after.dataset.gid!==_dragId){
+      let toIdx=games.findIndex(x=>x.id===+after.dataset.gid);
+      const r=after.getBoundingClientRect(); if(e.clientY>r.top+r.height/2) toIdx++;
+      games.splice(Math.max(0,toIdx),0,moved);
+    } else games.push(moved);
+    render();
+  });
+})();
 document.getElementById("hsClose").addEventListener("click",closeHistoryModal);
 document.getElementById("hsDone").addEventListener("click",closeHistoryModal);
 document.getElementById("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") closeHistoryModal(); });
@@ -1711,6 +1874,7 @@ if(!_loaded){ defaultInvited(); renderTabsBar(); }   // 명단 없으면 빈 상
 renderConfig();
 setTab(activeTab);
 renderBans();
+renderCourts();
 
 </script>
 </body>
