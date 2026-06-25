@@ -493,7 +493,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
         <h2>전체 인원 <span class="num" id="stRoster" style="color:var(--muted)">0</span></h2>
         <span style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted)">
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer" title="켜면 게스트와 친 횟수 표시 + 자동 생성 시 게스트를 골고루 분배"><input type="checkbox" id="guestModeToggle" style="cursor:pointer"> 배친소</label>
-          <span>✓ 완료한 게임</span>
+          <span>✓ 게임 수(시작 기준)</span>
         </span>
       </div>
       <div class="panel-b">
@@ -1307,9 +1307,16 @@ function playCounts(){
   games.forEach(g=>g.slots.forEach(s=>{if(s!=null)c[s]++;}));
   return c;
 }
+// 카운트 대상 게임 = 진행중(코트) + 완료. 게임 '시작'(코트 배정) 시점부터 집계, 취소하면 자동 제외. (대기실/대진표는 미시작이라 제외)
+function countedGames(){
+  const out=[];
+  activeGames().forEach(g=>{ if(g&&g.slots) out.push({slots:g.slots}); });
+  (config.completed||[]).forEach(r=>{ if(r&&r.slots) out.push({slots:r.slots}); });
+  return out;
+}
 function doneCounts(){
   const c={}; PLAYERS.forEach(p=>c[p.id]=0);
-  (config.completed||[]).forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
+  countedGames().forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
   return c;
 }
 // 완료 게임을 '게임 단위'로 남/여복·혼복으로 분류해 4명 모두에게 카운트
@@ -1324,7 +1331,7 @@ function gameGenre(slots){
 }
 function genreCounts(){
   const same={}, mix={}; PLAYERS.forEach(p=>{ same[p.id]=0; mix[p.id]=0; });
-  (config.completed||[]).forEach(r=>{
+  countedGames().forEach(r=>{
     const bucket=gameGenre(r.slots); if(!bucket) return;
     const tgt=bucket==="same"?same:mix;
     (r.slots||[]).forEach(s=>{ if(s!=null && tgt[s]!=null) tgt[s]++; });
@@ -1337,17 +1344,17 @@ function guestList(){ return PLAYERS.filter(p=>p.guest); }
 // 동호인별: 게스트가 낀 완료 게임을 몇 번 함께 쳤나 (게스트 본인은 제외)
 function guestPlayCounts(){
   const c={}; PLAYERS.forEach(p=>c[p.id]=0);
-  (config.completed||[]).forEach(r=>{
+  countedGames().forEach(r=>{
     const slots=r.slots||[];
     if(!slots.some(s=>isGuest(s))) return;             // 게스트가 낀 게임만
     slots.forEach(s=>{ if(s!=null && c[s]!=null && !isGuest(s)) c[s]++; });
   });
   return c;
 }
-// 이 사람이 (완료 게임에서) 함께 친 게스트 id 집합
+// 이 사람이 (진행중+완료 게임에서) 함께 친 게스트 id 집합
 function guestsMetBy(id){
   const met=new Set();
-  (config.completed||[]).forEach(r=>{ const slots=r.slots||[]; if(slots.includes(id)) slots.forEach(s=>{ if(s!==id && isGuest(s)) met.add(s); }); });
+  countedGames().forEach(r=>{ const slots=r.slots||[]; if(slots.includes(id)) slots.forEach(s=>{ if(s!==id && isGuest(s)) met.add(s); }); });
   return met;
 }
 function showGuestMeet(id){
@@ -1365,7 +1372,7 @@ function showGuestMeet(id){
 // 동호인별: 이미 함께 친(완료) 게스트 id 집합 맵 (생성기에서 1회 계산)
 function guestMetMap(){
   const m={}; PLAYERS.forEach(p=>{ if(!p.guest) m[p.id]=new Set(); });
-  (config.completed||[]).forEach(r=>{ const slots=r.slots||[]; const gs=slots.filter(isGuest);
+  countedGames().forEach(r=>{ const slots=r.slots||[]; const gs=slots.filter(isGuest);
     if(!gs.length) return; slots.forEach(s=>{ if(s!=null && m[s]) gs.forEach(g=>m[s].add(g)); }); });
   return m;
 }
@@ -1646,7 +1653,7 @@ function renderSide(){
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
-        <span class="played num ${dc[p.id]?"":"z"}" title="완료한 게임 (전체 탭)">${dc[p.id]}</span>
+        <span class="played num ${dc[p.id]?"":"z"}" title="게임 수 (진행중+완료)">${dc[p.id]}</span>
         <span class="cnt2 cnt-same num ${genre.same[p.id]?"":"zero"}" title="남복/여복 ${genre.same[p.id]}판">${genre.same[p.id]}</span>
         <span class="cnt2 cnt-mix num ${genre.mix[p.id]?"":"zero"}" title="혼복 ${genre.mix[p.id]}판">${genre.mix[p.id]}</span>
         ${gBadge}
