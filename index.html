@@ -177,6 +177,9 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .tag{font-size:12px;padding:2px 7px;border-radius:99px;background:var(--paper);color:var(--muted);font-weight:600}
 .tag.endline{background:#e7f3ec;color:var(--court-d)}
 .tag.guest{background:#fdeede;color:#a85a16}
+.tag.off{background:#e3e6e3;color:#7a8079}
+.rcard.inactive{opacity:.55;filter:grayscale(.55);background:#f4f5f4;border-color:var(--line)}
+.rcard.inactive .nm{text-decoration:line-through;text-decoration-color:#aab0aa}
 .tag.inv{background:var(--court);color:#fff}
 .tag.team{background:#e7f3ec;color:var(--court-d);display:inline-flex;align-items:center;gap:4px}
 .tag-icon{height:13px;width:auto;max-width:22px;object-fit:contain;display:inline-block;vertical-align:-2px;flex:none}
@@ -576,7 +579,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 <!-- 선수 경기기록 모달 -->
 <div class="modal-bg" id="playerModal" style="display:none">
   <div class="modal" style="width:min(560px,100%)">
-    <div class="modal-h"><h2 id="pmTitle">경기 기록</h2><button class="modal-x" id="pmClose">✕</button></div>
+    <div class="modal-h"><h2 id="pmTitle">경기 기록</h2><button class="btn btn-soft" id="pmToggle" style="margin-left:auto;margin-right:8px">매칭 중단</button><button class="modal-x" id="pmClose">✕</button></div>
     <div class="modal-b" id="pmBody"></div>
     <div class="modal-f"><button class="btn btn-primary" id="pmDone">닫기</button></div>
   </div>
@@ -615,7 +618,7 @@ function eName(id,fb){ const p=id!=null?byId(id):null; return p?p.name:(fb||"선
 /* ---------- 설정: 초청선수 · 파트너 · 생성할 탭 ---------- */
 const DEFAULT_SELECTED={hard:true,fun:true,partner:false};
 const MAX_TEAMS=6;
-let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[] };
+let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[], inactive:[] };
 function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
 let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
@@ -852,7 +855,15 @@ function fileToLogo(file,cb){
 }
 function invitedIds(){ return config.invited.filter(id=>byId(id)); }
 function isInvited(id){ return config.invited.includes(id); }
-function poolIds(){ return PLAYERS.filter(p=>!isInvited(p.id)).map(p=>p.id); }
+function poolIds(){ return PLAYERS.filter(p=>!isInvited(p.id)&&!isInactive(p.id)).map(p=>p.id); }
+// 매칭 중단(집에 간 사람 등): 기록은 보존하고 새 매칭에서만 제외
+function isInactive(id){ return (config.inactive||[]).includes(id); }
+function toggleInactive(id){
+  config.inactive=config.inactive||[];
+  if(isInactive(id)) config.inactive=config.inactive.filter(x=>x!==id);
+  else config.inactive.push(id);
+  refreshAvail(); render(); persist();
+}
 function partnerOf(id){ const pr=config.pairs.find(x=>x.includes(id)); return pr?pr.find(y=>y!==id):null; }
 function defaultInvited(){ config.invited=PLAYERS.filter(p=>p.grade==="S").map(p=>p.id); config.pairs=[]; }
 
@@ -1016,7 +1027,7 @@ function genPartner(key){
   const valid=[];
   pairs.forEach((P,pi)=>{
     const pPow=pp(P);
-    const others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id));
+    const others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id)&&!isInactive(id));
     for(let i=0;i<others.length;i++)for(let j=i+1;j<others.length;j++){
       const A=others[i],B=others[j], slots=[P[0],P[1],A,B];
       const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;   // 3:1 금지
@@ -1076,7 +1087,7 @@ function genForSpec(s){
 }
 // 가능자 매칭: 지금 게임중이 아닌 사람들로 밸런스 게임
 function genAvail(key){
-  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id));
+  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id)&&!isInactive(id));
   const valid=[];
   combos4(avail).forEach(c=>{ const bp=bestPairing(c,"any"); if(bp && !isBannedKey(keyOf(bp.slots))) valid.push(bp); });
   valid.forEach(v=>v._r=Math.random());
@@ -1160,7 +1171,7 @@ function addOneForTab(){
   else if(s.type==="partner") addOnePartner();
 }
 function addOneAvail(){
-  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id));
+  const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id)&&!isInactive(id));
   const counts=playCounts(), seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
   const gb=config.guestMode?guestMetMap():null;
   let best=null,bs=1e9;
@@ -1248,7 +1259,7 @@ function addOnePartner(){
   const seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
   let best=null,bs=1e9;
   pairs.forEach(P=>{
-    const pPow=pp(P), others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id));
+    const pPow=pp(P), others=PLAYERS.map(p=>p.id).filter(id=>!P.includes(id)&&!isInactive(id));
     for(let i=0;i<others.length;i++)for(let j=i+1;j<others.length;j++){
       const A=others[i],B=others[j], slots=[P[0],P[1],A,B];
       if(seen.has(keyOf(slots)) || isBannedKey(keyOf(slots))) continue;
@@ -1633,15 +1644,17 @@ function renderSide(){
   const ros=document.getElementById("roster");
   ros.innerHTML="";
   const sorted=[...PLAYERS].sort((a,b)=>
-    (isInvited(b.id)?1:0)-(isInvited(a.id)?1:0) || GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || eff(b)-eff(a) || a.name.localeCompare(b.name,"ko"));
+    (isInactive(a.id)?1:0)-(isInactive(b.id)?1:0)                       // 매칭 중단된 사람은 맨 아래로
+    || (isInvited(b.id)?1:0)-(isInvited(a.id)?1:0) || GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || eff(b)-eff(a) || a.name.localeCompare(b.name,"ko"));
   const busy=busyIdSet();
   const gMode=!!config.guestMode, hasGuests=guestList().length>0;
   const gc=gMode?guestPlayCounts():null;
   const genre=genreCounts();
   sorted.forEach(p=>{
+    const off=isInactive(p.id);
     const row=document.createElement("div");
-    row.className="rcard "+(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"));
-    row.dataset.pid=p.id; row.style.cursor="pointer"; row.title="클릭하면 이 사람의 경기 기록 보기";
+    row.className="rcard "+(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"))+(off?" inactive":"");
+    row.dataset.pid=p.id; row.style.cursor="pointer"; row.title=off?"매칭 중단됨 · 클릭하면 기록 보기/재개":"클릭하면 이 사람의 경기 기록 보기";
     const grpTag=teamLogoImg(p);
     // 배친소 모드: 동호인(게스트 아님) 카드에 게스트와 친 횟수 배지(클릭 시 안 만난 게스트 안내)
     const gBadge=(gMode&&hasGuests&&!p.guest)
@@ -1650,7 +1663,7 @@ function renderSide(){
     row.innerHTML=`
       ${busy.has(p.id)?'<span class="busy-dot" title="게임중"></span>':''}
       ${gradeBadge(p)}
-      <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
+      <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${off?'<span class="tag off">중단</span>':''}${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
         <span class="played num ${dc[p.id]?"":"z"}" title="게임 수 (진행중+완료)">${dc[p.id]}</span>
@@ -1681,9 +1694,9 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[], guestMode:!!obj.config.guestMode, waiting:Array.isArray(obj.config.waiting)?obj.config.waiting.map(w=>({id:w.id,slots:w.slots.slice(),startTab:w.startTab||"",startTabKey:w.startTabKey||null})):[] };
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[], guestMode:!!obj.config.guestMode, waiting:Array.isArray(obj.config.waiting)?obj.config.waiting.map(w=>({id:w.id,slots:w.slots.slice(),startTab:w.startTab||"",startTabKey:w.startTabKey||null})):[], inactive:Array.isArray(obj.config.inactive)?obj.config.inactive.slice():[] };
     config.courts.forEach(c=>{ const n=parseInt(String(c.id).replace("ct",""))||0; if(n>=_cuid) _cuid=n+1; });
-  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; config.guestMode=false; config.waiting=[]; }
+  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; config.guestMode=false; config.waiting=[]; config.inactive=[]; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
   tabs={};
   Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),court:g.court!=null?g.court:null,startTime:g.startTime||0,startTab:g.startTab||""})):[]; });
@@ -1712,7 +1725,7 @@ function resetAll(){
   if(!confirm("모든 데이터(명단·설정·편성·팀 로고)를 완전히 삭제하고 처음 상태로 되돌립니다. 진행할까요?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
-  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[] };
+  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[], inactive:[] };
   ensureCourt();
   renderTabsBar(); renderConfig(); render(); renderBans(); renderCourts();
 }
@@ -1964,9 +1977,13 @@ function deleteTeam(name){
 }
 
 /* ---------------- 선수 경기기록 모달 ---------------- */
+let _pmPid=null;
 function openPlayerModal(pid){
   const p=byId(pid); if(!p) return;
+  _pmPid=pid;
   document.getElementById("pmTitle").textContent=`${p.name} 경기 기록`;
+  const tg=document.getElementById("pmToggle");
+  if(tg){ const off=isInactive(pid); tg.textContent=off?"매칭 재개":"매칭 중단"; tg.classList.toggle("btn-primary",off); tg.classList.toggle("btn-soft",!off); }
   const body=document.getElementById("pmBody"); body.innerHTML="";
   const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
   // 진행중 게임(코트) — 맨 위에 '진행중'으로
@@ -2122,6 +2139,7 @@ document.getElementById("roster").addEventListener("click",e=>{
 document.getElementById("guestModeToggle").addEventListener("change",e=>{ config.guestMode=e.target.checked; render(); persist(); });
 document.getElementById("pmClose").addEventListener("click",closePlayerModal);
 document.getElementById("pmDone").addEventListener("click",closePlayerModal);
+document.getElementById("pmToggle").addEventListener("click",()=>{ if(_pmPid!=null){ toggleInactive(_pmPid); openPlayerModal(_pmPid); } });
 document.getElementById("playerModal").addEventListener("click",e=>{ if(e.target.id==="playerModal") closePlayerModal(); });
 document.getElementById("btnHistory").addEventListener("click",openHistoryModal);
 document.getElementById("banList").addEventListener("click",e=>{ const b=e.target.closest("[data-unban]"); if(b) unban(b.dataset.unban); });
