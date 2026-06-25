@@ -187,6 +187,10 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .rcard .cnts{display:flex;gap:4px;flex:none;align-items:center}
 .rcard .played{font-size:12px;font-weight:700;color:#fff;background:var(--ok);border-radius:7px;padding:2px 7px;min-width:30px;text-align:center}
 .rcard .played.z{color:var(--muted);background:#e7ece8}
+.rcard .cnt2{font-size:12px;font-weight:700;border-radius:7px;padding:2px 6px;min-width:24px;text-align:center;flex:none;background:#fff;border:1.5px solid}
+.rcard .cnt2.zero{opacity:.4}
+.rcard .cnt-same{color:#2f63c9;border-color:#3E7BFA}
+.rcard .cnt-mix{color:#c92f86;border-color:#E5499B}
 .rcard .gnum{font-size:12px;font-weight:700;color:#a85a16;background:#fdeede;border-radius:7px;padding:2px 7px;min-width:30px;text-align:center;cursor:pointer;flex:none}
 .rcard .gnum.z{color:#c99a6a;background:#faf1e8}
 .rcard .gnum:hover{filter:brightness(.95)}
@@ -510,6 +514,11 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
             <span><i style="background:#cfe0fa"></i>남자</span>
             <span><i style="background:#f7cfe0"></i>여자</span>
             <span><i style="background:#bfe6cd"></i>초청</span>
+          </div>
+          <div class="legend" style="margin-top:6px">
+            <span><i style="background:var(--ok)"></i>총 게임</span>
+            <span><i style="background:#fff;border:1.5px solid #3E7BFA"></i>남/여복</span>
+            <span><i style="background:#fff;border:1.5px solid #E5499B"></i>혼복</span>
           </div>
         </div>
       </div>
@@ -1303,6 +1312,20 @@ function doneCounts(){
   (config.completed||[]).forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
   return c;
 }
+// 완료 게임을 사람별로 남/여복(동성 파트너)·혼복(이성 파트너)으로 분류해 카운트
+function genreCounts(){
+  const same={}, mix={}; PLAYERS.forEach(p=>{ same[p.id]=0; mix[p.id]=0; });
+  (config.completed||[]).forEach(r=>{
+    const slots=r.slots||[]; if(slots.length<4) return;
+    slots.forEach((s,idx)=>{
+      if(s==null || same[s]==null) return;
+      const me=byId(s), partner=byId(slots[idx^1]);   // 같은 팀 파트너: 0↔1, 2↔3
+      if(!me||!partner) return;
+      if(me.gender===partner.gender) same[s]++; else mix[s]++;
+    });
+  });
+  return {same, mix};
+}
 /* ---------------- 배친소(게스트 매칭) ---------------- */
 function isGuest(id){ const p=byId(id); return !!(p&&p.guest); }
 function guestList(){ return PLAYERS.filter(p=>p.guest); }
@@ -1602,6 +1625,7 @@ function renderSide(){
   const busy=busyIdSet();
   const gMode=!!config.guestMode, hasGuests=guestList().length>0;
   const gc=gMode?guestPlayCounts():null;
+  const genre=genreCounts();
   sorted.forEach(p=>{
     const row=document.createElement("div");
     row.className="rcard "+(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"));
@@ -1617,8 +1641,10 @@ function renderSide(){
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
-        ${gBadge}
         <span class="played num ${dc[p.id]?"":"z"}" title="완료한 게임 (전체 탭)">${dc[p.id]}</span>
+        <span class="cnt2 cnt-same num ${genre.same[p.id]?"":"zero"}" title="남복/여복 ${genre.same[p.id]}판">${genre.same[p.id]}</span>
+        <span class="cnt2 cnt-mix num ${genre.mix[p.id]?"":"zero"}" title="혼복 ${genre.mix[p.id]}판">${genre.mix[p.id]}</span>
+        ${gBadge}
       </span>`;
     ros.appendChild(row);
   });
