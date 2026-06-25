@@ -174,6 +174,9 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .rcard .cnts{display:flex;gap:4px;flex:none;align-items:center}
 .rcard .played{font-size:12px;font-weight:700;color:#fff;background:var(--ok);border-radius:7px;padding:2px 7px;min-width:30px;text-align:center}
 .rcard .played.z{color:var(--muted);background:#e7ece8}
+.rcard .gnum{font-size:12px;font-weight:700;color:#a85a16;background:#fdeede;border-radius:7px;padding:2px 7px;min-width:30px;text-align:center;cursor:pointer;flex:none}
+.rcard .gnum.z{color:#c99a6a;background:#faf1e8}
+.rcard .gnum:hover{filter:brightness(.95)}
 
 .legend{display:flex;flex-wrap:wrap;gap:5px 10px;font-size:11px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:4px}
@@ -470,7 +473,10 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     <div class="panel">
       <div class="panel-h">
         <h2>전체 인원 <span class="num" id="stRoster" style="color:var(--muted)">0</span></h2>
-        <span style="font-size:11px;color:var(--muted)">✓ 완료한 게임</span>
+        <span style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted)">
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer" title="켜면 게스트와 친 횟수 표시 + 자동 생성 시 게스트를 골고루 분배"><input type="checkbox" id="guestModeToggle" style="cursor:pointer"> 배친소</label>
+          <span>✓ 완료한 게임</span>
+        </span>
       </div>
       <div class="panel-b">
         <div class="roster" id="roster"></div>
@@ -586,7 +592,7 @@ function eName(id,fb){ const p=id!=null?byId(id):null; return p?p.name:(fb||"선
 /* ---------- 설정: 초청선수 · 파트너 · 생성할 탭 ---------- */
 const DEFAULT_SELECTED={hard:true,fun:true,partner:false};
 const MAX_TEAMS=6;
-let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[] };
+let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false };
 function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
 let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
@@ -1214,6 +1220,37 @@ function doneCounts(){
   (config.completed||[]).forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
   return c;
 }
+/* ---------------- 배친소(게스트 매칭) ---------------- */
+function isGuest(id){ const p=byId(id); return !!(p&&p.guest); }
+function guestList(){ return PLAYERS.filter(p=>p.guest); }
+// 동호인별: 게스트가 낀 완료 게임을 몇 번 함께 쳤나 (게스트 본인은 제외)
+function guestPlayCounts(){
+  const c={}; PLAYERS.forEach(p=>c[p.id]=0);
+  (config.completed||[]).forEach(r=>{
+    const slots=r.slots||[];
+    if(!slots.some(s=>isGuest(s))) return;             // 게스트가 낀 게임만
+    slots.forEach(s=>{ if(s!=null && c[s]!=null && !isGuest(s)) c[s]++; });
+  });
+  return c;
+}
+// 이 사람이 (완료 게임에서) 함께 친 게스트 id 집합
+function guestsMetBy(id){
+  const met=new Set();
+  (config.completed||[]).forEach(r=>{ const slots=r.slots||[]; if(slots.includes(id)) slots.forEach(s=>{ if(s!==id && isGuest(s)) met.add(s); }); });
+  return met;
+}
+function showGuestMeet(id){
+  const p=byId(id); if(!p) return;
+  const guests=guestList().filter(g=>g.id!==id);
+  if(!guests.length){ alert("아직 게스트가 없어요. (명단 편집에서 '게스트' 체크)"); return; }
+  const met=guestsMetBy(id);
+  const metList=guests.filter(g=>met.has(g.id)).map(g=>g.name);
+  const unmet=guests.filter(g=>!met.has(g.id)).map(g=>g.name);
+  let msg=`${p.name} — 게스트 매칭 현황\n\n`;
+  msg+=`✓ 함께 친 게스트 (${metList.length}/${guests.length}): ${metList.join(", ")||"아직 없음"}\n\n`;
+  msg+=unmet.length ? `아직 안 만난 게스트 (${unmet.length}명): ${unmet.join(", ")}` : `🎉 모든 게스트와 한 번씩 다 쳤어요!`;
+  alert(msg);
+}
 function sCoverage(){
   // 어떤 사람이 초청선수 sid와 (어느 탭에서든) 같은 게임에 선 적 있으면 covered
   const inv=invitedIds();
@@ -1456,21 +1493,29 @@ function renderSide(){
   const sorted=[...PLAYERS].sort((a,b)=>
     (isInvited(b.id)?1:0)-(isInvited(a.id)?1:0) || GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || eff(b)-eff(a) || a.name.localeCompare(b.name,"ko"));
   const busy=busyIdSet();
+  const gMode=!!config.guestMode, hasGuests=guestList().length>0;
+  const gc=gMode?guestPlayCounts():null;
   sorted.forEach(p=>{
     const row=document.createElement("div");
     row.className="rcard "+(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"));
     row.dataset.pid=p.id; row.style.cursor="pointer"; row.title="클릭하면 이 사람의 경기 기록 보기";
     const grpTag=teamLogoImg(p);
+    // 배친소 모드: 동호인(게스트 아님) 카드에 게스트와 친 횟수 배지(클릭 시 안 만난 게스트 안내)
+    const gBadge=(gMode&&hasGuests&&!p.guest)
+      ? `<span class="gnum num ${gc[p.id]?"":"z"}" data-guestmeet="${p.id}" title="게스트와 친 게임 수 · 클릭하면 안 만난 게스트 보기">${gc[p.id]}</span>`
+      : "";
     row.innerHTML=`
       ${busy.has(p.id)?'<span class="busy-dot" title="게임중"></span>':''}
       ${gradeBadge(p)}
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
+        ${gBadge}
         <span class="played num ${dc[p.id]?"":"z"}" title="완료한 게임 (전체 탭)">${dc[p.id]}</span>
       </span>`;
     ros.appendChild(row);
   });
+  const gt=document.getElementById("guestModeToggle"); if(gt) gt.checked=gMode;
 }
 
 /* ---------------- save / restore ---------------- */
@@ -1491,9 +1536,9 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[] };
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[], guestMode:!!obj.config.guestMode };
     config.courts.forEach(c=>{ const n=parseInt(String(c.id).replace("ct",""))||0; if(n>=_cuid) _cuid=n+1; });
-  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; }
+  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; config.guestMode=false; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
   tabs={};
   Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),court:g.court!=null?g.court:null,startTime:g.startTime||0,startTab:g.startTab||""})):[]; });
@@ -1522,7 +1567,7 @@ function resetAll(){
   if(!confirm("모든 데이터(명단·설정·편성·팀 로고)를 완전히 삭제하고 처음 상태로 되돌립니다. 진행할까요?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
-  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[] };
+  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false };
   ensureCourt();
   renderTabsBar(); renderConfig(); render(); renderBans(); renderCourts();
 }
@@ -1925,7 +1970,11 @@ document.getElementById("fileInput").addEventListener("change",e=>{ handleFile(e
 document.getElementById("btnTemplate").addEventListener("click",downloadTemplate);
 document.getElementById("btnRoster").addEventListener("click",exportRoster);
 document.getElementById("btnDemo").addEventListener("click",loadDemo);
-document.getElementById("roster").addEventListener("click",e=>{ const r=e.target.closest("[data-pid]"); if(r) openPlayerModal(+r.dataset.pid); });
+document.getElementById("roster").addEventListener("click",e=>{
+  const gm=e.target.closest("[data-guestmeet]"); if(gm){ showGuestMeet(+gm.dataset.guestmeet); return; }  // 게스트 카운트 클릭 → 안 만난 게스트 안내
+  const r=e.target.closest("[data-pid]"); if(r) openPlayerModal(+r.dataset.pid);
+});
+document.getElementById("guestModeToggle").addEventListener("change",e=>{ config.guestMode=e.target.checked; render(); persist(); });
 document.getElementById("pmClose").addEventListener("click",closePlayerModal);
 document.getElementById("pmDone").addEventListener("click",closePlayerModal);
 document.getElementById("playerModal").addEventListener("click",e=>{ if(e.target.id==="playerModal") closePlayerModal(); });
