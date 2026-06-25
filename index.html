@@ -13,7 +13,7 @@
   --paper:#EEF1EC; --card:#FFFFFF; --ink:#16211C; --muted:#697B70;
   --line:#DCE2DA; --court:#1F6B4A; --court-d:#154D36; --lime:#C6F542; --lime-d:#A8DC1F;
   --ok:#1F9D57; --okbg:#E6F6EC; --warn:#C97A12; --warnbg:#FBF0DE; --bad:#D23B3B; --badbg:#FBE7E7;
-  --gS:#111111; --gA:#E5484D; --gB:#F2700A; --gC:#2E9E5B; --gD:#3E7BFA; --gE:#E5499B; --gF:#8B97A0;
+  --gS:#111111; --gA:#E5484D; --gB:#F2700A; --gC:#2E9E5B; --gD:#3E7BFA; --gE:#E5499B; --gF:#8B97A0; --g입문:#B6BEC4;
   --radius:14px; --shadow:0 1px 2px rgba(20,40,30,.05),0 6px 20px rgba(20,40,30,.06);
 }
 *{box-sizing:border-box}
@@ -158,7 +158,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .inv-tag{font-size:10px;font-weight:700;color:#fff;background:var(--court);border-radius:6px;padding:3px 7px;flex:none;letter-spacing:.02em;line-height:1}
 .gbadge{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
 .gS{background:var(--gS);box-shadow:0 0 0 2px var(--lime) inset}
-.gA{background:var(--gA)}.gB{background:var(--gB)}.gC{background:var(--gC)}.gD{background:var(--gD)}.gE{background:var(--gE)}.gF{background:var(--gF)}
+.gA{background:var(--gA)}.gB{background:var(--gB)}.gC{background:var(--gC)}.gD{background:var(--gD)}.gE{background:var(--gE)}.gF{background:var(--gF)}.g입문{background:var(--g입문);font-size:10px;letter-spacing:-1px}
 .rcard .nm{font-weight:600;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rcard .meta{font-size:13px;color:var(--muted);display:flex;gap:6px;flex:none;align-items:center}
 .tag{font-size:12px;padding:2px 7px;border-radius:99px;background:var(--paper);color:var(--muted);font-weight:600}
@@ -437,7 +437,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
               <b>빡겜</b> — 4명 실력 비슷(환산폭 2 이하) + 양 팀 전력 차 1 이하.<br><br>
               <b>즐겜</b> — 4명 급수차는 크지만(환산폭 3 이상) 양 팀 전력 차 1 이하.<br><br>
               <b>파트너전</b> — 지정한 고정 파트너끼리 한 팀, 양 팀 전력 차 1 이하.<br><br>
-              <span style="color:var(--muted)">· 환산값=급수 점수(S7·A6·B5·C4·D3·E2·F1, 남자 +1). 전력=한 팀(2명) 환산값 합.<br>· 한 명만 성별 다른(3:1) 게임은 안 나와요.</span>
+              <span style="color:var(--muted)">· 환산값=급수 점수(S7·A6·B5·C4·D3·E2·F1·입문0, 남자 +1). 전력=한 팀(2명) 환산값 합.<br>· 한 명만 성별 다른(3:1) 게임은 안 나와요.</span>
             </span>
           </div>
           <div id="cfgTabs" class="cfg-chips"></div>
@@ -567,14 +567,14 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 </div>
 
 <div class="footnote">
-  급수 환산: S 7 · A 6 · B 5 · C 4 · D 3 · E 2 · F 1 (남자 +1단계). 팀 전력 = 두 선수 환산값 합.
+  급수 환산: S 7 · A 6 · B 5 · C 4 · D 3 · E 2 · F 1 · 입문 0 (남자 +1단계). 팀 전력 = 두 선수 환산값 합.
   밸런스 판정 — 차이 0~1: 좋음 / 2: 주의 / 3 이상: 불균형. 게임 성격 — 4명 환산폭 2 이하: "실력 비슷",
   환산폭 3 이상이면서 팀 차이 1 이하: "차이 크지만 밸런스". 혼복은 양 팀 남자의 실제 급수가 맞는지 별도 확인합니다.
   같은 4명 조합이 두 번 나오면 중복 경고가 표시됩니다.
 </div>
 
 <script>
-const GRADE_VAL={S:7,A:6,B:5,C:4,D:3,E:2,F:1};
+const GRADE_VAL={S:7,A:6,B:5,C:4,D:3,E:2,F:1,입문:0};
 // 개인정보(실명 명단)는 코드에 두지 않습니다. 사용자가 엑셀을 불러오면 브라우저에서만 채워집니다.
 let PLAYERS=[];
 const byId=id=>PLAYERS.find(p=>p.id===id);
@@ -1544,7 +1544,7 @@ function rowsToPlayers(rows){
     if(guest) team="";
     const g=get("성별","gender"); const gender=(g.startsWith("남")||g.toUpperCase()==="M")?"남":"여";
     const age=parseInt(get("나이대","나이","age","연령"))||20;
-    let grade=get("등급","grade","급수").toUpperCase().replace(/[^SABCDEF]/g,""); if(!GRADE_VAL[grade]) grade="C";
+    const gradeRaw=get("등급","grade","급수"); let grade=gradeRaw.includes("입문")?"입문":gradeRaw.toUpperCase().replace(/[^SABCDEF]/g,""); if(!GRADE_VAL.hasOwnProperty(grade)) grade="C";
     const invRaw=get("초청","invited","초청선수","선수초청");
     const _inv=_truthy.test(invRaw) || /초청|선수/.test(invRaw);
     out.push({id:id++,name,team,guest,gender,age,grade,_inv});
@@ -1646,7 +1646,7 @@ function loadDemo(){
 let _logoTeam=null, _editId=null;
 function buildGradeSelect(){
   const sel=document.getElementById("rmGrade"); if(sel.options.length) return;
-  ["S","A","B","C","D","E","F"].forEach(g=>{ const o=document.createElement("option"); o.value=g; o.textContent=g+"급"; sel.appendChild(o); });
+  ["S","A","B","C","D","E","F","입문"].forEach(g=>{ const o=document.createElement("option"); o.value=g; o.textContent=g==="입문"?"입문":g+"급"; sel.appendChild(o); });
   sel.value="C";
 }
 function openRosterModal(){ buildGradeSelect(); exitEdit(); renderRosterModal(); document.getElementById("rosterModal").style.display="flex"; document.getElementById("rmName").focus(); }
