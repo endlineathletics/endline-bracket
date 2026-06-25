@@ -55,6 +55,16 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .court-end:hover{background:var(--court-d)}
 .court-add{flex:none;min-width:100px;border:1.5px dashed var(--line);border-radius:12px;background:#fff;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
 .court-add:hover{border-color:var(--court);color:var(--court)}
+/* ---------- 대기실 ---------- */
+.waitbar-inner{max-width:1480px;margin:0 auto;padding:11px 22px;display:flex;align-items:stretch;gap:10px;overflow-x:auto;border-top:1px dashed var(--line);background:#fbfdfb}
+.wait{flex:none;min-width:200px;border:1.5px solid #d9b78a;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:#fffaf2;cursor:pointer}
+.wait:hover{background:#fef3e2;border-color:#c7944a}
+.wait .court-no{font-size:14px;color:#a8651b}
+.wait .court-tab{background:#d9914b}
+.wait-x{margin-left:6px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+.wait-x:hover{color:var(--bad)}
+.wait-go{font-size:12px;font-weight:700;color:#a8651b;text-align:center;margin-top:2px}
+.wait.empty{border-style:dashed;border-color:var(--line);background:#fafbf9;cursor:default;align-items:center;justify-content:center;color:var(--muted);text-align:center;font-size:12px}
 .cp-bg{position:fixed;inset:0;z-index:210;background:rgba(20,40,30,.4);display:flex;align-items:center;justify-content:center}
 .cp-box{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;min-width:240px}
 .cp-title{font-size:14px;font-weight:700;margin-bottom:12px}
@@ -86,6 +96,9 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .startbtn:disabled{opacity:.4;cursor:not-allowed}
 .startbtn.end{background:var(--bad);border-color:var(--bad)}
 .startbtn.end:hover{background:#b23030}
+.waitbtn{margin-left:6px;font-family:inherit;font-size:12px;font-weight:600;color:var(--court);background:#fff;cursor:pointer;padding:5px 14px;border-radius:99px;border:1px solid var(--court);min-width:50px}
+.waitbtn:hover:not(:disabled){background:#eef8f1}
+.waitbtn:disabled{opacity:.4;cursor:not-allowed}
 .gc-timer{font-weight:700;font-size:12px;color:var(--court);margin-left:6px}
 .gc.warn-time .gc-timer{color:var(--warn)} .gc.red-time .gc-timer{color:var(--bad)}
 .gc .vs{cursor:grab;touch-action:none;user-select:none;padding:5px 0;border-radius:8px}
@@ -386,6 +399,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 
 <div class="courtbar" id="courtbar">
   <div class="courtbar-inner" id="courtbarInner"></div>
+  <div class="waitbar-inner" id="waitbarInner"></div>
 </div>
 
 <div class="cp-bg" id="courtPicker" style="display:none">
@@ -592,14 +606,14 @@ function eName(id,fb){ const p=id!=null?byId(id):null; return p?p.name:(fb||"선
 /* ---------- 설정: 초청선수 · 파트너 · 생성할 탭 ---------- */
 const DEFAULT_SELECTED={hard:true,fun:true,partner:false};
 const MAX_TEAMS=6;
-let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false };
+let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[] };
 function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
 let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
 // 진행중 게임(코트 배정됨) / 코트 점유 / 게임중인 사람
 function activeGames(){ return config.courts.filter(c=>c.game).map(c=>c.game); }
 function activeGameOnCourt(cid){ const c=config.courts.find(x=>x.id===cid); return c?c.game:null; }
-function busyIdSet(){ const s=new Set(); activeGames().forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); return s; }
+function busyIdSet(){ const s=new Set(); activeGames().forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); (config.waiting||[]).forEach(g=>g.slots.forEach(x=>{ if(x!=null) s.add(x); })); return s; }
 function emptyCourts(){ return config.courts.filter(c=>!c.game); }
 let _cuid=1; const courtId=()=>"ct"+(_cuid++);
 function ensureCourt(){ if(!config.courts.length) config.courts=[{id:courtId(), num:1, game:null}]; }
@@ -633,6 +647,73 @@ function renderCourts(){
     wrap.appendChild(el);
   });
   const b=document.createElement("button"); b.className="court-add"; b.dataset.courtedit="1"; b.textContent=config.courts.length?"✎ 코트 편집":"＋ 코트 추가"; wrap.appendChild(b);
+  renderWaiting();
+}
+/* ---------------- 대기실 ---------------- */
+// 대기실 칸 수 = 코트 수. 대진표 카드를 '대기'로 올려두고, 코트가 비면 클릭→코트 선택해서 넣음.
+function renderWaiting(){
+  const wrap=document.getElementById("waitbarInner"); if(!wrap) return;
+  const cap=config.courts.length, wlist=config.waiting||[];
+  if(!cap){ wrap.innerHTML=""; wrap.style.display="none"; return; }   // 코트 없으면 대기실도 숨김
+  wrap.style.display="";
+  wrap.innerHTML=`<div class="courtbar-title">대기</div>`;
+  wlist.forEach((g,i)=>{
+    const el=document.createElement("div"); el.className="wait"; el.dataset.wid=g.id; el.title="눌러서 코트에 넣기";
+    el.innerHTML=`<div class="court-top"><span class="court-no">대기 ${i+1}</span><span class="court-tab">${esc(g.startTab||"")}</span><button class="wait-x" data-wremove="${g.id}" title="대진표로 되돌리기">✕</button></div>`+
+      `<div class="court-team">${esc(pInfo(g.slots[0]))} · ${esc(pInfo(g.slots[1]))}</div>`+
+      `<div class="court-vs2">VS</div>`+
+      `<div class="court-team">${esc(pInfo(g.slots[2]))} · ${esc(pInfo(g.slots[3]))}</div>`+
+      `<div class="wait-go">▶ 코트에 넣기</div>`;
+    wrap.appendChild(el);
+  });
+  for(let i=wlist.length;i<cap;i++){
+    const el=document.createElement("div"); el.className="wait empty";
+    el.innerHTML=`대기 ${i+1}<br>비어있음`;
+    wrap.appendChild(el);
+  }
+}
+// 대진표 카드 → 대기실(맨 오른쪽)
+function stageToWaiting(g){
+  if(g.slots.some(x=>x==null)){ alert("인원 4명을 채워주세요."); return; }
+  if(!config.courts.length){ alert("먼저 위에서 코트를 추가하세요."); return; }
+  const cap=config.courts.length;
+  if((config.waiting||[]).length>=cap){ alert(`대기실이 꽉 찼어요. (최대 ${cap}개 = 코트 수)`); return; }
+  if(g.slots.some(x=>busyIdSet().has(x))){ alert("이 게임에 이미 코트/대기 중인 사람이 있어요."); return; }
+  const fk=foursomeKey(g);
+  Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
+  Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
+  config.waiting=config.waiting||[];
+  config.waiting.push({id:uid(), slots:g.slots.slice(), startTab:specOf(activeTab).label||"", startTabKey:activeTab});
+  games=tabs[activeTab]||[];
+  refreshAvail(); renderCourts(); render(); persist();
+}
+// 대기실 카드 클릭 → 빈 코트 선택 팝업
+function startFromWaiting(wid){
+  if(!(config.waiting||[]).some(w=>w.id===wid)) return;
+  if(!config.courts.length){ alert("먼저 코트를 추가하세요."); return; }
+  const empties=emptyCourts(); if(!empties.length){ alert("비어있는 코트가 없어요. 코트가 끝나면 넣어주세요."); return; }
+  const pop=document.getElementById("courtPicker"), list=pop.querySelector("#cpList");
+  list.innerHTML="";
+  empties.forEach(c=>{ const b=document.createElement("button"); b.className="cp-btn"; b.textContent=c.num+"번"; b.onclick=()=>{ assignWaitingToCourt(wid,c.id); closeCourtPicker(); }; list.appendChild(b); });
+  pop.style.display="flex";
+}
+function assignWaitingToCourt(wid,cid){
+  const idx=(config.waiting||[]).findIndex(w=>w.id===wid); if(idx<0) return;
+  const ct=config.courts.find(c=>c.id===cid); if(!ct||ct.game) return;
+  const g=config.waiting[idx];
+  config.waiting.splice(idx,1);                 // 대기실에서 빼면 나머지 자동 왼쪽 정렬
+  g.startTime=Date.now(); g.startTabKey=g.startTabKey||activeTab; g.startTab=g.startTab||(specOf(activeTab).label||"");
+  ct.game=g;
+  refreshAvail(); renderCourts(); render(); persist();
+}
+// 대기실 ✕ → 대진표로 되돌림
+function removeFromWaiting(wid){
+  const idx=(config.waiting||[]).findIndex(w=>w.id===wid); if(idx<0) return;
+  const g=config.waiting[idx]; config.waiting.splice(idx,1);
+  const k=(g.startTabKey&&tabs[g.startTabKey])?g.startTabKey:activeTab;
+  if(k && tabs[k]) tabs[k].unshift({id:uid(),slots:g.slots.slice()});
+  games=tabs[activeTab]||[];
+  refreshAvail(); renderCourts(); render(); persist();
 }
 /* 코트 편집 팝업 (코트 수 −/+ , 번호 수정, 확인) */
 let _ceCount=2, _ceNums=[];
@@ -1420,6 +1501,8 @@ function render(){
     if(info.dupeIds.length) flags+=`<span class="flag bad"><span class="dot"></span>같은 게임에 중복 인원</span>`;
     if(hasS) flags+=`<span class="flag info"><span class="dot"></span>초청선수 포함</span>`;
 
+    const waitFull=(config.waiting||[]).length>=config.courts.length && config.courts.length>0;
+    const waitBtn = `<button class="waitbtn" ${(!info.full||hasBusy||waitFull)?"disabled":""} title="${waitFull?"대기실이 꽉 찼어요":"대기실에 넣기"}">대기</button>`;
     const startBtn = `<button class="startbtn" ${(!info.full||hasBusy)?"disabled":""} title="게임 시작(코트 배정)">시작</button>`;
     const timerHtml = "";
 
@@ -1429,6 +1512,7 @@ function render(){
         ${info.nature?`<span class="naturetag nature-${info.nature}">${info.nature==="비슷"?"실력 비슷":"차이 크지만 밸런스"}</span>`:""}
         ${timerHtml}
         <button class="banbtn" ${info.full?"":"disabled"} title="이 조합 다시 만들지 않기(밴)">밴</button>
+        ${waitBtn}
         ${startBtn}
         <button class="gx" title="이 게임 삭제">✕</button>
       </div>
@@ -1448,6 +1532,7 @@ function render(){
       });
     });
     card.querySelector(".startbtn").addEventListener("click",()=>startGame(g));
+    const wbtn=card.querySelector(".waitbtn"); if(wbtn) wbtn.addEventListener("click",()=>stageToWaiting(g));
     const bb=card.querySelector(".banbtn"); if(bb) bb.addEventListener("click",()=>banGame(g));
     card.querySelector(".gx").addEventListener("click",()=>{
       const ix=games.findIndex(x=>x.id===g.id); if(ix>=0) games.splice(ix,1); render();
@@ -1558,9 +1643,9 @@ function restore(obj){
     if(Array.isArray(obj.config.teams)) teams=obj.config.teams.map(t=>({name:t.name,logo:t.logo||null}));
     else if(obj.config.teamLogos && typeof obj.config.teamLogos==="object") teams=Object.entries(obj.config.teamLogos).map(([name,logo])=>({name,logo}));
     PLAYERS.forEach(p=>{ if(!p.guest&&p.team&&!teams.find(t=>t.name===p.team)) teams.push({name:p.team,logo:null}); });
-    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[], guestMode:!!obj.config.guestMode };
+    config={ invited:(obj.config.invited||[]).slice(), pairs:(obj.config.pairs||[]).map(pr=>pr.slice()), selected:{...DEFAULT_SELECTED, ...obj.config.selected}, teams:teams.slice(0,MAX_TEAMS), doneSeq:(obj.config.doneSeq||0), bans:Array.isArray(obj.config.bans)?obj.config.bans.map(b=>({key:b.key,slots:b.slots.slice()})):[], courts:Array.isArray(obj.config.courts)?obj.config.courts.map(c=>({id:c.id,num:c.num,game:c.game||null})):[], completed:Array.isArray(obj.config.completed)?obj.config.completed.slice():[], guestMode:!!obj.config.guestMode, waiting:Array.isArray(obj.config.waiting)?obj.config.waiting.map(w=>({id:w.id,slots:w.slots.slice(),startTab:w.startTab||"",startTabKey:w.startTabKey||null})):[] };
     config.courts.forEach(c=>{ const n=parseInt(String(c.id).replace("ct",""))||0; if(n>=_cuid) _cuid=n+1; });
-  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; config.guestMode=false; }
+  } else { defaultInvited(); config.teams=[]; config.doneSeq=0; config.bans=[]; config.courts=[]; config.completed=[]; config.guestMode=false; config.waiting=[]; }
   tabSpecs=Array.isArray(obj.tabSpecs)?obj.tabSpecs.map(s=>({...s})):[];
   tabs={};
   Object.keys(obj.tabs).forEach(k=>{ tabs[k]=Array.isArray(obj.tabs[k])?obj.tabs[k].map(g=>({id:g.id,slots:g.slots.slice(),court:g.court!=null?g.court:null,startTime:g.startTime||0,startTab:g.startTab||""})):[]; });
@@ -1589,7 +1674,7 @@ function resetAll(){
   if(!confirm("모든 데이터(명단·설정·편성·팀 로고)를 완전히 삭제하고 처음 상태로 되돌립니다. 진행할까요?")) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   PLAYERS=[]; tabs={}; tabCache={}; tabSpecs=[]; tabMeta={}; activeTab=null; games=[];
-  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false };
+  config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[] };
   ensureCourt();
   renderTabsBar(); renderConfig(); render(); renderBans(); renderCourts();
 }
@@ -2008,6 +2093,10 @@ document.getElementById("courtbarInner").addEventListener("click",e=>{
   const cancel=e.target.closest("[data-cancel]"); if(cancel) return cancelGame(cancel.dataset.cancel);
   const end=e.target.closest("[data-end]"); if(end) return endGame(end.dataset.end);
   const cc=e.target.closest("[data-cc]"); if(cc && !e.target.closest("button")) return openCourtCard(cc.dataset.cc);
+});
+document.getElementById("waitbarInner").addEventListener("click",e=>{
+  const rm=e.target.closest("[data-wremove]"); if(rm){ e.stopPropagation(); return removeFromWaiting(rm.dataset.wremove); }
+  const w=e.target.closest("[data-wid]"); if(w) return startFromWaiting(w.dataset.wid);
 });
 document.getElementById("courtCardModal").addEventListener("click",e=>{ if(e.target.id==="courtCardModal"||e.target.id==="ccClose") document.getElementById("courtCardModal").style.display="none"; });
 document.getElementById("cpCancel").addEventListener("click",closeCourtPicker);
