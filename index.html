@@ -1580,6 +1580,7 @@ function applyRoster(ps){
   invitedIds().forEach(id=>config.selected["cov_"+id]=true);   // 초청선수별 '전담' 탭 기본 ON
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
   generateTabs(); renderConfig(); setTab(activeTab);
+  if(document.getElementById("rosterModal").style.display==="flex") renderRosterModal();  // 명단 편집 모달이 열려있으면 그 목록도 즉시 갱신
   const sN=invitedIds().length;
   alert(`불러왔습니다 (${PLAYERS.length}명, 초청선수 ${sN}명).\n왼쪽 ⚙ 설정에서 초청선수·파트너·탭을 조절할 수 있어요. (탭은 클릭하면 바로 생기고, 밸런스·파트너 변경은 '탭 저장'으로 반영)`);
   return true;
