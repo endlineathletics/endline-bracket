@@ -1072,11 +1072,12 @@ function addOneForTab(){
 function addOneAvail(){
   const avail=PLAYERS.map(p=>p.id).filter(id=>!busyIdSet().has(id));
   const counts=playCounts(), seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
+  const gb=config.guestMode?guestMetMap():null;
   let best=null,bs=1e9;
   combos4(avail).forEach(c=>{
     if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,"any"); if(!bp) return;
-    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0);
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
     if(sc<bs){bs=sc;best=bp;}
   });
   if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
@@ -1138,12 +1139,13 @@ function _coverGame(sid, relaxed){
 function addOneStyle(style){
   const ids=poolIds();
   const counts=playCounts();
+  const gb=config.guestMode?guestMetMap():null;
   const seen=new Set(games.map(g=>keyOf(g.slots)).filter(Boolean));
   let best=null,bs=1e9;
   combos4(ids).forEach(c=>{
     if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,style); if(!bp) return;
-    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0);
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
     if(sc<bs){bs=sc;best=bp;}
   });
   if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
@@ -1250,6 +1252,26 @@ function showGuestMeet(id){
   msg+=`✓ 함께 친 게스트 (${metList.length}/${guests.length}): ${metList.join(", ")||"아직 없음"}\n\n`;
   msg+=unmet.length ? `아직 안 만난 게스트 (${unmet.length}명): ${unmet.join(", ")}` : `🎉 모든 게스트와 한 번씩 다 쳤어요!`;
   alert(msg);
+}
+// 동호인별: 이미 함께 친(완료) 게스트 id 집합 맵 (생성기에서 1회 계산)
+function guestMetMap(){
+  const m={}; PLAYERS.forEach(p=>{ if(!p.guest) m[p.id]=new Set(); });
+  (config.completed||[]).forEach(r=>{ const slots=r.slots||[]; const gs=slots.filter(isGuest);
+    if(!gs.length) return; slots.forEach(s=>{ if(s!=null && m[s]) gs.forEach(g=>m[s].add(g)); }); });
+  return m;
+}
+// 배친소 모드 자동 생성 가산점(낮을수록 우선). 아직 안 만난 (동호인×게스트) 쌍이 많을수록 우대 → 전원이 모든 게스트를 골고루.
+function guestBias(slots, metMap){
+  if(!config.guestMode || !metMap) return 0;
+  const ss=slots.filter(s=>s!=null);
+  const guests=ss.filter(isGuest);
+  if(!guests.length) return 0;                                         // 게스트 없는 게임은 중립
+  let newPairs=0;
+  ss.forEach(s=>{ if(isGuest(s)) return; const met=metMap[s]; if(!met) return;
+    guests.forEach(g=>{ if(!met.has(g)) newPairs++; }); });            // 이 게임으로 새로 생기는 동호인↔게스트 만남 수
+  let b=-newPairs*8;                                                   // 새 만남이 많을수록 우선
+  if(guests.length>1) b += 6*(guests.length-1);                        // 한 게임에 게스트 몰리지 않게
+  return b;
 }
 function sCoverage(){
   // 어떤 사람이 초청선수 sid와 (어느 탭에서든) 같은 게임에 선 적 있으면 covered
