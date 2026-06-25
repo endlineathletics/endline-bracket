@@ -1312,17 +1312,22 @@ function doneCounts(){
   (config.completed||[]).forEach(r=>r.slots.forEach(s=>{ if(s!=null&&c[s]!=null)c[s]++; }));
   return c;
 }
-// 완료 게임을 사람별로 남/여복(동성 파트너)·혼복(이성 파트너)으로 분류해 카운트
+// 완료 게임을 '게임 단위'로 남/여복·혼복으로 분류해 4명 모두에게 카운트
+// 남3여1→남복, 여3남1→여복(둘 다 남/여복 버킷), 4:0/0:4→남/여복, 2:2는 양 팀 M+F면 혼복·아니면 남/여복
+function gameGenre(slots){
+  const ps=(slots||[]).map(s=>byId(s));
+  if(ps.length<4 || ps.some(p=>!p)) return null;
+  const m=ps.filter(p=>p.gender==="남").length, f=4-m;
+  if(m>=3 || f>=3) return "same";                         // 4:0, 3:1
+  const aMix=ps[0].gender!==ps[1].gender, bMix=ps[2].gender!==ps[3].gender;  // 2:2
+  return (aMix && bMix) ? "mix" : "same";
+}
 function genreCounts(){
   const same={}, mix={}; PLAYERS.forEach(p=>{ same[p.id]=0; mix[p.id]=0; });
   (config.completed||[]).forEach(r=>{
-    const slots=r.slots||[]; if(slots.length<4) return;
-    slots.forEach((s,idx)=>{
-      if(s==null || same[s]==null) return;
-      const me=byId(s), partner=byId(slots[idx^1]);   // 같은 팀 파트너: 0↔1, 2↔3
-      if(!me||!partner) return;
-      if(me.gender===partner.gender) same[s]++; else mix[s]++;
-    });
+    const bucket=gameGenre(r.slots); if(!bucket) return;
+    const tgt=bucket==="same"?same:mix;
+    (r.slots||[]).forEach(s=>{ if(s!=null && tgt[s]!=null) tgt[s]++; });
   });
   return {same, mix};
 }
