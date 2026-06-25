@@ -470,7 +470,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     <div class="panel">
       <div class="panel-h">
         <h2>전체 인원 <span class="num" id="stRoster" style="color:var(--muted)">0</span></h2>
-        <span style="font-size:11px;color:var(--muted)">✓ 완료 · 배정(이 탭)</span>
+        <span style="font-size:11px;color:var(--muted)">✓ 완료한 게임</span>
       </div>
       <div class="panel-b">
         <div class="roster" id="roster"></div>
@@ -1421,7 +1421,6 @@ function render(){
 }
 
 function renderSide(){
-  const counts=playCounts();
   const dc=doneCounts();
   const cov=sCoverage();
   const inv=invitedIds();
@@ -1458,7 +1457,6 @@ function renderSide(){
     (isInvited(b.id)?1:0)-(isInvited(a.id)?1:0) || GRADE_VAL[b.grade]-GRADE_VAL[a.grade] || eff(b)-eff(a) || a.name.localeCompare(b.name,"ko"));
   const busy=busyIdSet();
   sorted.forEach(p=>{
-    const c=counts[p.id];
     const row=document.createElement("div");
     row.className="rcard "+(isInvited(p.id)?"sgrade":(p.gender==="남"?"male":"female"));
     row.dataset.pid=p.id; row.style.cursor="pointer"; row.title="클릭하면 이 사람의 경기 기록 보기";
@@ -1470,7 +1468,6 @@ function renderSide(){
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
         <span class="played num ${dc[p.id]?"":"z"}" title="완료한 게임 (전체 탭)">${dc[p.id]}</span>
-        <span class="plays num ${c===0?"zero":""}" title="배정된 게임 (이 탭)">${c}</span>
       </span>`;
     ros.appendChild(row);
   });
