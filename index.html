@@ -383,6 +383,13 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .hs-time{font-size:11.5px;color:var(--muted);margin-left:auto}
 .hs-players{font-size:13px;line-height:1.5}
 .hs-players b{color:var(--muted);font-weight:600;margin:0 4px}
+.nm-row{padding:9px 11px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:#fff}
+.nm-top{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.nm-name{font-weight:700;font-size:14px}
+.nm-cnt{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--bad);background:var(--badbg);border-radius:99px;padding:2px 9px}
+.nm-cnt.ok{color:var(--ok);background:#e7f3ec}
+.nm-list{font-size:12.5px;line-height:1.55;color:var(--ink)}
+.nm-done{color:var(--ok);font-weight:600}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -396,6 +403,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     </div>
     <div class="spacer"></div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
+    <button class="btn btn-soft btn-eqw" id="btnNotMet">아직 안 만남</button>
     <button class="btn btn-primary btn-eqw" id="btnHistory">게임 내역</button>
     <button class="btn btn-soft btn-eqw" id="btnEdit">명단 편집</button>
     <button class="btn btn-ghost btn-eqw" id="btnDemo">테스트 데이터</button>
@@ -591,6 +599,15 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
     <div class="modal-h"><h2>게임 내역 <span style="font-weight:400;font-size:12px;opacity:.85">· 완료 누른 순서</span></h2><button class="modal-x" id="hsClose">✕</button></div>
     <div class="modal-b" id="hsBody"></div>
     <div class="modal-f"><button class="btn btn-primary" id="hsDone">닫기</button></div>
+  </div>
+</div>
+
+<!-- 아직 안 만남 모달 -->
+<div class="modal-bg" id="notmetModal" style="display:none">
+  <div class="modal" style="width:min(560px,100%)">
+    <div class="modal-h"><h2>아직 안 만난 조합 <span style="font-weight:400;font-size:12px;opacity:.85">· 실제로 같이 친 게임 기준</span></h2><button class="modal-x" id="nmClose">✕</button></div>
+    <div class="modal-b" id="nmBody"></div>
+    <div class="modal-f"><button class="btn btn-primary" id="nmDone">닫기</button></div>
   </div>
 </div>
 
@@ -1340,6 +1357,16 @@ function gameGenre(slots){
   const aMix=ps[0].gender!==ps[1].gender, bMix=ps[2].gender!==ps[3].gender;  // 2:2
   return (aMix && bMix) ? "mix" : "same";
 }
+// 표시용 타입: 남복/여복/혼복 (남3여1→남복, 여3남1→여복). 인원 못 찾으면 null
+function genreLabel(slots){
+  const ps=(slots||[]).map(s=>byId(s));
+  if(ps.length<4 || ps.some(p=>!p)) return null;
+  const m=ps.filter(p=>p.gender==="남").length, f=4-m;
+  if(m>=3) return "남복";
+  if(f>=3) return "여복";
+  const aMix=ps[0].gender!==ps[1].gender, bMix=ps[2].gender!==ps[3].gender;   // 2:2
+  return (aMix&&bMix) ? "혼복" : "남복";
+}
 function genreCounts(){
   const same={}, mix={}; PLAYERS.forEach(p=>{ same[p.id]=0; mix[p.id]=0; });
   countedGames().forEach(r=>{
@@ -1401,11 +1428,11 @@ function guestBias(slots, metMap){
   return b;
 }
 function sCoverage(){
-  // 어떤 사람이 초청선수 sid와 (어느 탭에서든) 같은 게임에 선 적 있으면 covered
+  // 어떤 사람이 초청선수 sid와 '실제로 같은 게임을 친 적'(진행중+완료) 있으면 covered
   const inv=invitedIds();
   const cov={}; PLAYERS.forEach(p=>{cov[p.id]={}; inv.forEach(s=>cov[p.id][s]=false);});
-  Object.values(tabs).flat().forEach(g=>{
-    const set=g.slots.filter(x=>x!=null);
+  countedGames().forEach(g=>{
+    const set=(g.slots||[]).filter(x=>x!=null);
     inv.forEach(s=>{ if(set.includes(s)) set.forEach(pid=>{ if(pid!==s && cov[pid]) cov[pid][s]=true; }); });
   });
   return cov;
@@ -1614,7 +1641,7 @@ function renderSide(){
   const dc=doneCounts();
   const cov=sCoverage();
   const inv=invitedIds();
-  const others=PLAYERS.filter(p=>!isInvited(p.id));
+  const others=PLAYERS.filter(p=>!isInvited(p.id)&&!isInactive(p.id));   // 비활성(매칭 중단)은 분모에서 제외
   // 초청선수 매칭 진행 패널
   const scov=document.getElementById("scov");
   scov.innerHTML="";
@@ -1993,8 +2020,8 @@ function openPlayerModal(pid){
   let n=0;
   live.forEach(g=>{
     n++;
-    const info=analyzeGame(g), inv=g.slots.some(x=>x!=null&&isInvited(x));
-    const tagL=inv?"초청":info.type, tagC=inv?"초청":info.type;
+    const info=analyzeGame(g);
+    const tagL=genreLabel(g.slots)||info.type, tagC=tagL;
     const pl=g.slots.map(s=>{ const t=esc(pInfo(s)); return s===pid?`<span class="pm-me">${t}</span>`:t; });
     const row=document.createElement("div"); row.className="hs-row"; row.style.background="#fff7e6"; row.style.borderColor="#f0d9a8";
     row.innerHTML=`<div class="hs-head"><span class="pm-no">${n}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time" style="color:#f59e0b;font-weight:700">진행중 (${elapsedMin(g.startTime)}분)</span></div>`+
@@ -2003,7 +2030,7 @@ function openPlayerModal(pid){
   });
   mine.forEach((r)=>{
     n++;
-    const tagL=r.inv?"초청":(r.type||"게임"), tagC=r.inv?"초청":(r.type||"");
+    const tagL=genreLabel(r.slots)||r.type||"게임", tagC=tagL;
     const pl=(r.slots||[]).map((s,idx)=>{ const t=esc((r.players&&r.players[idx])||"—"); return s===pid?`<span class="pm-me">${t}</span>`:t; });
     const row=document.createElement("div"); row.className="hs-row";
     row.innerHTML=`<div class="hs-head"><span class="pm-no">${n}</span><span class="hs-tag ${tagC}">${esc(tagL)}</span><span class="hs-time">${fmt(r.startTime)} ~ ${fmt(r.endTime)}</span></div>`+
@@ -2021,7 +2048,7 @@ function openHistoryModal(){
   if(!items.length){ body.innerHTML=`<div class="pm-empty">완료된 게임이 없습니다. 카드에서 게임을 <b>시작</b>하고 <b>종료</b>하면 여기에 쌓여요.</div>`; document.getElementById("historyModal").style.display="flex"; return; }
   const fmt=ms=>{ if(!ms) return "—"; const d=new Date(ms); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); };
   items.forEach((r,i)=>{
-    const tagL=r.inv?"초청":(r.type||"게임"), tagC=r.inv?"초청":(r.type||"");
+    const tagL=genreLabel(r.slots)||r.type||"게임", tagC=tagL;
     const pl=r.players||["—","—","—","—"];
     const row=document.createElement("div"); row.className="hs-row";
     row.innerHTML=`<div class="hs-head"><span class="pm-no">${i+1}</span>`+
@@ -2033,6 +2060,33 @@ function openHistoryModal(){
   document.getElementById("historyModal").style.display="flex";
 }
 function closeHistoryModal(){ document.getElementById("historyModal").style.display="none"; }
+
+/* ---------------- 아직 안 만난 조합 모달 ---------------- */
+// 사람별: 실제로 같은 게임(진행중+완료)에서 만난 사람 id 집합
+function metMap(){
+  const m={}; PLAYERS.forEach(p=>m[p.id]=new Set());
+  countedGames().forEach(r=>{ const s=(r.slots||[]).filter(x=>x!=null);
+    s.forEach(a=>{ if(!m[a]) return; s.forEach(b=>{ if(a!==b) m[a].add(b); }); }); });
+  return m;
+}
+function openNotMetModal(){
+  const body=document.getElementById("nmBody"); body.innerHTML="";
+  const m=metMap();
+  const actives=PLAYERS.filter(p=>!isInactive(p.id));
+  if(actives.length<2){ body.innerHTML=`<div class="pm-empty">명단이 2명 이상일 때 표시됩니다.</div>`; document.getElementById("notmetModal").style.display="flex"; return; }
+  // 아직 안 만난 사람이 많은 순으로 정렬(더 챙겨야 할 사람 위로)
+  const rows=actives.map(p=>({p, unmet:actives.filter(q=>q.id!==p.id && !m[p.id].has(q.id))}));
+  rows.sort((a,b)=> b.unmet.length-a.unmet.length || GRADE_VAL[b.p.grade]-GRADE_VAL[a.p.grade] || a.p.name.localeCompare(b.p.name,"ko"));
+  rows.forEach(({p,unmet})=>{
+    const row=document.createElement("div"); row.className="nm-row";
+    row.innerHTML=`<div class="nm-top">${gradeBadge(p)}<span class="nm-name">${esc(p.name)}</span>`+
+      `<span class="nm-cnt ${unmet.length?"":"ok"}">${unmet.length?"안 만남 "+unmet.length:"✓ 전원"}</span></div>`+
+      `<div class="nm-list">${unmet.length?unmet.map(q=>esc(q.name)).join(", "):'<span class="nm-done">모든 사람과 쳐봤어요</span>'}</div>`;
+    body.appendChild(row);
+  });
+  document.getElementById("notmetModal").style.display="flex";
+}
+function closeNotMetModal(){ document.getElementById("notmetModal").style.display="none"; }
 
 /* ---------------- 설정 패널 ---------------- */
 function renderConfig(){
@@ -2142,6 +2196,7 @@ document.getElementById("pmDone").addEventListener("click",closePlayerModal);
 document.getElementById("pmToggle").addEventListener("click",()=>{ if(_pmPid!=null){ toggleInactive(_pmPid); openPlayerModal(_pmPid); } });
 document.getElementById("playerModal").addEventListener("click",e=>{ if(e.target.id==="playerModal") closePlayerModal(); });
 document.getElementById("btnHistory").addEventListener("click",openHistoryModal);
+document.getElementById("btnNotMet").addEventListener("click",openNotMetModal);
 document.getElementById("banList").addEventListener("click",e=>{ const b=e.target.closest("[data-unban]"); if(b) unban(b.dataset.unban); });
 // 코트 바
 document.getElementById("courtbarInner").addEventListener("click",e=>{
@@ -2204,6 +2259,9 @@ document.getElementById("courtEdit").addEventListener("click",e=>{ if(e.target.i
 })();
 document.getElementById("hsClose").addEventListener("click",closeHistoryModal);
 document.getElementById("hsDone").addEventListener("click",closeHistoryModal);
+document.getElementById("nmClose").addEventListener("click",closeNotMetModal);
+document.getElementById("nmDone").addEventListener("click",closeNotMetModal);
+document.getElementById("notmetModal").addEventListener("click",e=>{ if(e.target.id==="notmetModal") closeNotMetModal(); });
 document.getElementById("historyModal").addEventListener("click",e=>{ if(e.target.id==="historyModal") closeHistoryModal(); });
 document.getElementById("btnEdit").addEventListener("click",openRosterModal);
 document.getElementById("rmClose").addEventListener("click",closeRosterModal);
