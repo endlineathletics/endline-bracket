@@ -228,7 +228,8 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 .chip{font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;cursor:pointer;color:var(--muted)}
 .chip.on{background:var(--court);color:#fff;border-color:var(--court)}
 
-.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:720px){.games{grid-template-columns:1fr}}
 
 .gc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:opacity .2s}
 .gc.bad-balance{border-color:#f3c9c9}
@@ -605,7 +606,7 @@ h1,h2,h3{margin:0;letter-spacing:-.01em}
 <!-- 아직 안 만남 모달 -->
 <div class="modal-bg" id="notmetModal" style="display:none">
   <div class="modal" style="width:min(560px,100%)">
-    <div class="modal-h"><h2>아직 안 만난 조합 <span style="font-weight:400;font-size:12px;opacity:.85">· 실제로 같이 친 게임 기준</span></h2><button class="modal-x" id="nmClose">✕</button></div>
+    <div class="modal-h"><h2>아직 안 만난 사람 <span style="font-weight:400;font-size:12px;opacity:.85">· 실제로 같이 친 게임 기준</span></h2><button class="modal-x" id="nmClose">✕</button></div>
     <div class="modal-b" id="nmBody"></div>
     <div class="modal-f"><button class="btn btn-primary" id="nmDone">닫기</button></div>
   </div>
@@ -1690,7 +1691,7 @@ function renderSide(){
     row.innerHTML=`
       ${busy.has(p.id)?'<span class="busy-dot" title="게임중"></span>':''}
       ${gradeBadge(p)}
-      <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${off?'<span class="tag off">중단</span>':''}${grpTag}</span>
+      <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
         <span class="played num ${dc[p.id]?"":"z"}" title="게임 수 (진행중+완료)">${dc[p.id]}</span>
@@ -2079,7 +2080,7 @@ function openNotMetModal(){
   rows.sort((a,b)=> b.unmet.length-a.unmet.length || GRADE_VAL[b.p.grade]-GRADE_VAL[a.p.grade] || a.p.name.localeCompare(b.p.name,"ko"));
   rows.forEach(({p,unmet})=>{
     const row=document.createElement("div"); row.className="nm-row";
-    row.innerHTML=`<div class="nm-top">${gradeBadge(p)}<span class="nm-name">${esc(p.name)}</span>`+
+    row.innerHTML=`<div class="nm-top"><span class="nm-name">${esc(p.name)}</span>`+
       `<span class="nm-cnt ${unmet.length?"":"ok"}">${unmet.length?"안 만남 "+unmet.length:"✓ 전원"}</span></div>`+
       `<div class="nm-list">${unmet.length?unmet.map(q=>esc(q.name)).join(", "):'<span class="nm-done">모든 사람과 쳐봤어요</span>'}</div>`;
     body.appendChild(row);
