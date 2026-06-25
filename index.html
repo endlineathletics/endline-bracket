@@ -1537,16 +1537,23 @@ function rowsToPlayers(rows){
   const out=[]; let id=1;
   rows.forEach(r=>{
     const get=(...keys)=>{ for(const k of keys){ if(r[k]!=null && String(r[k]).trim()!=="") return String(r[k]).trim(); } return ""; };
-    const name=get("이름","name","성명","선수");
-    if(!name) return;
+    let name=get("이름","name","성명","선수");
     let team=get("팀명","팀","소속","group","team");
     const guestRaw=get("게스트","guest");
+    const g=get("성별","gender");
+    const ageRaw=get("나이대","나이","age","연령");
+    const gradeRaw=get("등급","grade","급수");
+    const invRaw=get("초청","invited","초청선수","선수초청");
+    // 이름이 없어도 행에 내용이 하나라도 있으면 '미확인'으로 살리고, 완전히 빈 행만 건너뜀
+    if(!name){
+      const anyCell=Object.values(r).some(v=>v!=null && String(v).trim()!=="");
+      if(anyCell) name="미확인"; else return;
+    }
     let guest = _truthy.test(guestRaw) || /게스트|guest/i.test(guestRaw) || team==="게스트";
     if(guest) team="";
-    const g=get("성별","gender"); const gender=(g.startsWith("남")||g.toUpperCase()==="M")?"남":"여";
-    const age=parseInt(get("나이대","나이","age","연령"))||20;
-    const gradeRaw=get("등급","grade","급수"); let grade=gradeRaw.includes("입문")?"입문":gradeRaw.toUpperCase().replace(/[^SABCDEF]/g,""); if(!GRADE_VAL.hasOwnProperty(grade)) grade="입문";  // 빈칸·읽지 못한 급수는 입문으로
-    const invRaw=get("초청","invited","초청선수","선수초청");
+    const gender=(g.startsWith("남")||g.toUpperCase()==="M")?"남":"여";  // 남자/남/M → 남, 그 외(여자/여/W/빈칸) → 여
+    const age=parseInt(ageRaw)||20;
+    let grade=gradeRaw.includes("입문")?"입문":gradeRaw.toUpperCase().replace(/[^SABCDEF]/g,""); if(!GRADE_VAL.hasOwnProperty(grade)) grade="입문";  // 빈칸·읽지 못한 급수는 입문으로
     const _inv=_truthy.test(invRaw) || /초청|선수/.test(invRaw);
     out.push({id:id++,name,team,guest,gender,age,grade,_inv});
   });
