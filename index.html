@@ -814,7 +814,7 @@ function genCoverage(sid){
   const trios=combos3(others).filter(t=>{ const g=byId(t[0]).gender; return byId(t[1]).gender===g && byId(t[2]).gender===g; });
   const out=[], seen=new Set(), covered=new Set();
   let guard=0;
-  while(covered.size<others.length && guard++<40){
+  while(covered.size<others.length && out.length<4 && guard++<40){
     let best=null,bs=-1e9,bestCov=0;
     for(const t of trios){
       const sameGender=byId(t[0]).gender===sgender;
@@ -901,7 +901,7 @@ function genStyle(style){
   combos4(ids).forEach(c=>{const bp=bestPairing(c,style); if(bp && !isBannedKey(keyOf(bp.slots))) valid.push(bp);});
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || (style==="hard"? a.spread-b.spread : b.spread-a.spread) || a._r-b._r);
-  const CAP=24, chosen=[], seen=new Set(), cnt={}; ids.forEach(i=>cnt[i]=0);
+  const CAP=4, chosen=[], seen=new Set(), cnt={}; ids.forEach(i=>cnt[i]=0);
   let guard=0;
   while(chosen.length<CAP && guard++<4000){
     let best=null,bs=1e9;
@@ -937,7 +937,7 @@ function genPartner(key){
   });
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || a._r-b._r);
-  const CAP=24, chosen=[], seen=new Set(), cov=new Set();
+  const CAP=4, chosen=[], seen=new Set(), cov=new Set();
   let guard=0;
   while(chosen.length<CAP && guard++<4000){
     let best=null,bs=1e9;
@@ -991,7 +991,7 @@ function genAvail(key){
   combos4(avail).forEach(c=>{ const bp=bestPairing(c,"any"); if(bp && !isBannedKey(keyOf(bp.slots))) valid.push(bp); });
   valid.forEach(v=>v._r=Math.random());
   valid.sort((a,b)=> a.diff-b.diff || a._r-b._r);
-  const CAP=24, chosen=[], seen=new Set(), cnt={}; avail.forEach(i=>cnt[i]=0);
+  const CAP=4, chosen=[], seen=new Set(), cnt={}; avail.forEach(i=>cnt[i]=0);
   let guard=0;
   while(chosen.length<CAP && guard++<4000){
     let best=null,bs=1e9;
