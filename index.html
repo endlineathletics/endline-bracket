@@ -639,6 +639,8 @@ const MAX_TEAMS=6;
 let config={ invited:[], pairs:[], selected:{...DEFAULT_SELECTED}, teams:[], doneSeq:0, bans:[], courts:[], completed:[], guestMode:false, waiting:[], inactive:[] };
 function isBannedKey(k){ return (config.bans||[]).some(b=>b.key===k); }
 function playedSet(){ return new Set((config.completed||[]).map(c=>c.key)); }
+// '이미 해본 조합' = 완료 게임 + 지금 코트에서 진행 중인 게임. 자동 생성 시 새 4명 조합을 우선 뽑기 위해 사용.
+function triedSet(){ const s=new Set((config.completed||[]).map(c=>c.key)); activeGames().forEach(g=>{ if(g&&g.slots){ const k=keyOf(g.slots); if(k) s.add(k); } }); return s; }
 let _played=new Set();   // 생성 시 '이미 한 조합' 패널티용
 // 진행중 게임(코트 배정됨) / 코트 점유 / 게임중인 사람
 function activeGames(){ return config.courts.filter(c=>c.game).map(c=>c.game); }
@@ -1091,7 +1093,7 @@ function tabOptionList(){
   return opts;
 }
 function genForSpec(s){
-  _played=playedSet();
+  _played=triedSet();
   let r=[];
   switch(s.type){
     case "coverage": r=genCoverage(s.param); s._mk="cov_"+s.param; break;
@@ -1196,7 +1198,7 @@ function addOneAvail(){
   combos4(avail).forEach(c=>{
     if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,"any"); if(!bp) return;
-    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (triedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
     if(sc<bs){bs=sc;best=bp;}
   });
   if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
@@ -1264,7 +1266,7 @@ function addOneStyle(style){
   combos4(ids).forEach(c=>{
     if(seen.has(keyOf(c)) || isBannedKey(keyOf(c))) return;
     const bp=bestPairing(c,style); if(!bp) return;
-    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
+    const sc=c.reduce((s,p)=>s+counts[p],0) - c.filter(p=>counts[p]===0).length*50 + bp.diff*0.4 + Math.random()*0.3 + (triedSet().has(keyOf(c))?500:0) + guestBias(c,gb);
     if(sc<bs){bs=sc;best=bp;}
   });
   if(best){ games.push({id:uid(),slots:best.slots.slice()}); render(); scrollEnd(); }
@@ -1283,7 +1285,7 @@ function addOnePartner(){
       if(seen.has(keyOf(slots)) || isBannedKey(keyOf(slots))) continue;
       const m=slots.filter(x=>byId(x).gender==="남").length; if(m===1||m===3) continue;
       const diff=Math.abs(pPow-(eff(byId(A))+eff(byId(B)))); if(diff>1) continue;
-      const sc=diff*0.4 + Math.random()*0.3 + (playedSet().has(keyOf(slots))?500:0);
+      const sc=diff*0.4 + Math.random()*0.3 + (triedSet().has(keyOf(slots))?500:0);
       if(sc<bs){bs=sc;best=slots;}
     }
   });
@@ -1686,7 +1688,7 @@ function renderSide(){
     const grpTag=teamLogoImg(p);
     // 배친소 모드: 동호인(게스트 아님) 카드에 게스트와 친 횟수 배지(클릭 시 안 만난 게스트 안내)
     const gBadge=(gMode&&hasGuests&&!p.guest)
-      ? `<span class="gnum num ${gc[p.id]?"":"z"}" data-guestmeet="${p.id}" title="게스트와 친 게임 수 · 클릭하면 안 만난 게스트 보기">${gc[p.id]}</span>`
+      ? `<span class="gnum num ${gc[p.id]?"":"z"}" data-guestmeet="${p.id}" title="배친소 — 초청·게스트 선수와 같은 코트에서 친 경기 수 · 클릭하면 아직 안 만난 게스트 보기">${gc[p.id]}</span>`
       : "";
     row.innerHTML=`
       ${busy.has(p.id)?'<span class="busy-dot" title="게임중"></span>':''}
@@ -1694,9 +1696,9 @@ function renderSide(){
       <span class="nmwrap"><span class="nm">${esc(p.name)}</span>${grpTag}</span>
       <span class="meta"><span>${p.age}대</span></span>
       <span class="cnts">
-        <span class="played num ${dc[p.id]?"":"z"}" title="게임 수 (진행중+완료)">${dc[p.id]}</span>
-        <span class="cnt2 cnt-same num ${genre.same[p.id]?"":"zero"}" title="남복/여복 ${genre.same[p.id]}판">${genre.same[p.id]}</span>
-        <span class="cnt2 cnt-mix num ${genre.mix[p.id]?"":"zero"}" title="혼복 ${genre.mix[p.id]}판">${genre.mix[p.id]}</span>
+        <span class="played num ${dc[p.id]?"":"z"}" title="총 게임 수 — 코트에 올라간(진행 중) + 완료한 경기를 모두 합한 출전 수">${dc[p.id]}</span>
+        <span class="cnt2 cnt-same num ${genre.same[p.id]?"":"zero"}" title="남복·여복 경기 수 — 같은 성별끼리 친 복식 (현재 ${genre.same[p.id]}판)">${genre.same[p.id]}</span>
+        <span class="cnt2 cnt-mix num ${genre.mix[p.id]?"":"zero"}" title="혼복 경기 수 — 남녀 혼성 복식 (현재 ${genre.mix[p.id]}판)">${genre.mix[p.id]}</span>
         ${gBadge}
       </span>`;
     ros.appendChild(row);
