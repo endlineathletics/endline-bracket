@@ -710,7 +710,7 @@ function stageToWaiting(g){
   if(!config.courts.length){ alert("먼저 위에서 코트를 추가하세요."); return; }
   const cap=config.courts.length;
   if((config.waiting||[]).length>=cap){ alert(`대기실이 꽉 찼어요. (최대 ${cap}개 = 코트 수)`); return; }
-  if(g.slots.some(x=>busyIdSet().has(x))){ alert("이 게임에 이미 코트/대기 중인 사람이 있어요."); return; }
+  if((config.waiting||[]).some(w=>foursomeKey(w)===foursomeKey(g))){ alert("이미 대기실에 있는 조합이에요."); return; }
   const fk=foursomeKey(g);
   Object.keys(tabs).forEach(k=>{ tabs[k]=tabs[k].filter(x=>foursomeKey(x)!==fk); });
   Object.keys(tabCache).forEach(k=>{ tabCache[k]=tabCache[k].filter(x=>foursomeKey(x)!==fk); });
@@ -733,6 +733,9 @@ function assignWaitingToCourt(wid,cid){
   const idx=(config.waiting||[]).findIndex(w=>w.id===wid); if(idx<0) return;
   const ct=config.courts.find(c=>c.id===cid); if(!ct||ct.game) return;
   const g=config.waiting[idx];
+  const onCourt=new Set(); activeGames().forEach(x=>x.slots.forEach(s=>{ if(s!=null) onCourt.add(s); }));
+  const clash=g.slots.filter(s=>s!=null&&onCourt.has(s)).map(s=>byId(s)).filter(Boolean).map(p=>p.name);
+  if(clash.length){ alert(`${clash.join(", ")}님이 아직 다른 코트에서 게임 중이에요.\n그 코트가 끝난 뒤에 배정해주세요.`); return; }
   config.waiting.splice(idx,1);                 // 대기실에서 빼면 나머지 자동 왼쪽 정렬
   g.startTime=Date.now(); g.startTabKey=g.startTabKey||activeTab; g.startTab=g.startTab||(specOf(activeTab).label||"");
   ct.game=g;
@@ -1578,7 +1581,7 @@ function render(){
     if(hasS) flags+=`<span class="flag info"><span class="dot"></span>초청선수 포함</span>`;
 
     const waitFull=(config.waiting||[]).length>=config.courts.length && config.courts.length>0;
-    const waitBtn = `<button class="waitbtn" ${(!info.full||hasBusy||waitFull)?"disabled":""} title="${waitFull?"대기실이 꽉 찼어요":"대기실에 넣기"}">대기</button>`;
+    const waitBtn = `<button class="waitbtn" title="대기실에 넣기 — 인원 4명만 차면 밸런스·불균형과 상관없이 가능 (코트가 비면 배정)">대기</button>`;
     const startBtn = `<button class="startbtn" ${(!info.full||hasBusy)?"disabled":""} title="게임 시작(코트 배정)">시작</button>`;
     const timerHtml = "";
 
